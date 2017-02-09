@@ -82,7 +82,7 @@ typedef struct tag_Event
 	void*				pvPayload;
 } ttag_Event;
 
-typedef portRtcType  ttag_DateTime;
+typedef portRTC_TIME_Type  ttag_DateTime;
 
 typedef void (*tcbf_EventHandlerFunction)(Handle hHandle, ttag_Event* ptagEvent);
 
