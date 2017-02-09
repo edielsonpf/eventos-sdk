@@ -18,11 +18,7 @@
 #ifndef PORTMACRO_H_
 #define PORTMACRO_H_
 
-#ifdef GCC_ARMCM3_LPC17xx
-	#include "../Port/LPC17xx/portable.h"
-#else
 #include "portable.h"
-#endif
 
 /*
  * Setup the hardware ready for the scheduler to take control.  Must setup the system to sleep mode

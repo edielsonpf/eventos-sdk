@@ -49,14 +49,14 @@ extern "C" {
 
 /** @brief Time structure definitions for easy manipulate the data */
 typedef struct {
-	uint32_t SEC; 		/*!< Seconds Register */
-	uint32_t MIN; 		/*!< Minutes Register */
-	uint32_t HOUR; 		/*!< Hours Register */
-	uint32_t DOM;		/*!< Day of Month Register */
-	uint32_t DOW; 		/*!< Day of Week Register */
-	uint32_t DOY; 		/*!< Day of Year Register */
-	uint32_t MONTH; 	/*!< Months Register */
-	uint32_t YEAR; 		/*!< Years Register */
+	portULONG SEC; 		/*!< Seconds Register */
+	portULONG MIN; 		/*!< Minutes Register */
+	portULONG HOUR; 	/*!< Hours Register */
+	portULONG DOM;		/*!< Day of Month Register */
+	portULONG DOW; 		/*!< Day of Week Register */
+	portULONG DOY; 		/*!< Day of Year Register */
+	portULONG MONTH; 	/*!< Months Register */
+	portULONG YEAR; 	/*!< Years Register */
 } portRTC_TIME_Type;
 
 #define __HEADER_						volatile
