@@ -33,8 +33,8 @@
 *********************************************************/
 typedef struct tag_SubscribeNode
 {
-	Handle hHandle;
-	tcbf_EventHandlerFunction pcbfHandlerFunction;
+	void* hHandle;
+	pdEventHandlerFunction pcbfHandlerFunction;
 
 	struct tag_SubscribeNode* ptagNext;
 	struct tag_SubscribeNode* ptagPrev;
@@ -42,8 +42,8 @@ typedef struct tag_SubscribeNode
 
 typedef struct tag_EventNode
 {
-	ttag_Event* ptagEvent;
-	uInt32		ulLifeTimeCount;
+	port_EVENT_Type* ptagEvent;
+	portULONG		ulLifeTimeCount;
 	struct tag_EventNode* ptagNext;
 	struct tag_EventNode* ptagPrev;
 }ttag_EventNode;
@@ -51,7 +51,7 @@ typedef struct tag_EventNode
 
 typedef struct tag_EventOS
 {
-	uInt32					ulProcessStamp;
+	portULONG				ulProcessStamp;
 	ttag_EventNode* 		ptagEventList[EVENTOS_PRIORITY_LAST];
 	ttag_SubscribeNode* 	ptagSubList[EVENTOS_EVENT_LAST];
 }ttag_EventOS;
@@ -65,9 +65,9 @@ __PRIVATE_ ttag_EventOS* EventOS_ptagEventOS = NULL;
 /*********************************************************
     private operations.
 *********************************************************/
-__PRIVATE_ void EventOS_updateLifeTime (void);
-__PRIVATE_ ttag_Event* 	EventOS_getEvent(void);
-__PRIVATE_ void  	 	EventOS_printLog(const pInt8 cString, ...);
+__PRIVATE_ void 			EventOS_updateLifeTime (void);
+__PRIVATE_ port_EVENT_Type* EventOS_getEvent(void);
+__PRIVATE_ void  	 		EventOS_printLog(const portCHAR* cString, ...);
 
 /*********************************************************
     Operations implementation
@@ -88,7 +88,7 @@ void	EventOS_createInstance(void)
 
 	if(EventOS_ptagEventOS) return;
 
-	uInt8 ucCounter;
+	portUCHAR ucCounter;
 
 	EventOS_ptagEventOS = (ttag_EventOS*)malloc(sizeof(ttag_EventOS));
 	if(EventOS_ptagEventOS)
@@ -137,7 +137,7 @@ void 	EventOS_deleteInstance(void)
 {
 	if(EventOS_ptagEventOS)
 	{
-		uInt8 ucCounter;
+		portUCHAR ucCounter;
 		ttag_EventNode* 	ptagEventNodeRun=NULL;
 		ttag_SubscribeNode* ptagSubNodeRun=NULL;
 
@@ -198,12 +198,12 @@ void EventOS_startScheduler( void )
 /*
 	EventOs subscribe. Function subscribe a determined event
 
-    @param Int16 - iEvent, function* pFunction
+    @param portINTEGER - iEvent, function* pFunction
     @return void
     @author Samuel/Amanda
     @date   22/09/2014
 */
-void EventOS_subscribe (tenu_Events eEvent, Handle hHandle, tcbf_EventHandlerFunction pFunction)
+void EventOS_subscribe (port_EVENT_List eEvent, void* hHandle, pdEventHandlerFunction pFunction)
 {
 	if(!EventOS_ptagEventOS) return;
 	if(eEvent >= EVENTOS_EVENT_LAST) return;
@@ -221,7 +221,7 @@ void EventOS_subscribe (tenu_Events eEvent, Handle hHandle, tcbf_EventHandlerFun
 		EventOS_ptagEventOS->ptagSubList[eEvent]->ptagNext = ptagNew;
 		ptagNew->ptagPrev = EventOS_ptagEventOS->ptagSubList[eEvent];
 	}
-	EventOS_printLog((pInt8)"[subscribe] Event: %d", eEvent);
+	EventOS_printLog((portCHAR*)"[subscribe] Event: %d", eEvent);
 }
 /*
 	EventOS publish. Publishing events in a particular queue according to its priority
@@ -232,7 +232,7 @@ void EventOS_subscribe (tenu_Events eEvent, Handle hHandle, tcbf_EventHandlerFun
     @date   22/09/2014
 */
 
-void EventOS_publish (ttag_Event* ptagEvent)
+void EventOS_publish (port_EVENT_Type* ptagEvent)
 {
 	if(!ptagEvent) return;
 	if(!EventOS_ptagEventOS) return;
@@ -250,7 +250,7 @@ void EventOS_publish (ttag_Event* ptagEvent)
 			EventOS_ptagEventOS->ptagEventList[ptagEvent->tagHeader.ePriority]->ptagNext = ptagNew;
 			ptagNew->ptagPrev = EventOS_ptagEventOS->ptagEventList[ptagEvent->tagHeader.ePriority];
 
-			EventOS_printLog((pInt8)"[publish] Event: %d / Priority: %d", ptagNew->ptagEvent->tagHeader.eEvent, ptagNew->ptagEvent->tagHeader.ePriority);
+			EventOS_printLog((portCHAR*)"[publish] Event: %d / Priority: %d", ptagNew->ptagEvent->tagHeader.eEvent, ptagNew->ptagEvent->tagHeader.ePriority);
 		}
 	}
 	vPortEnableInterrupts();
@@ -272,13 +272,13 @@ void EventOS_processEvents (void)
 	if(!EventOS_ptagEventOS) return;
 
 	ttag_SubscribeNode* ptagSubList;
-	ttag_Event* pEvent = NULL;
+	port_EVENT_Type* pEvent = NULL;
 
 	pEvent = EventOS_getEvent();
 	while (pEvent)
 	{
 
-		EventOS_printLog((pInt8)"[process] Event: %d / Priority: %d", pEvent->tagHeader.eEvent,pEvent->tagHeader.ePriority);
+		EventOS_printLog((portCHAR*)"[process] Event: %d / Priority: %d", pEvent->tagHeader.eEvent,pEvent->tagHeader.ePriority);
 
 		/*take the first subscriber from the sub list related to the event*/
 		ptagSubList = EventOS_ptagEventOS->ptagSubList[pEvent->tagHeader.eEvent]->ptagNext;
@@ -310,7 +310,7 @@ void EventOS_processEvents (void)
 __PRIVATE_ void EventOS_updateLifeTime (void)
 {
 	ttag_EventNode* ptagEventListAux = NULL;
-	uInt8 ucPriority = EVENTOS_PRIORITY_MEDIUM;
+	portUCHAR ucPriority = EVENTOS_PRIORITY_MEDIUM;
 
 	EventOS_ptagEventOS->ulProcessStamp++;
 
@@ -322,9 +322,9 @@ __PRIVATE_ void EventOS_updateLifeTime (void)
 		if(ptagEventListAux == EventOS_ptagEventOS->ptagEventList[ucPriority]) ucPriority++;
 		else
 		{
-			if(((uInt32)(EventOS_ptagEventOS->ulProcessStamp - ptagEventListAux->ulLifeTimeCount)) >= EVENTOS_LIFE_TIME)
+			if(((portULONG)(EventOS_ptagEventOS->ulProcessStamp - ptagEventListAux->ulLifeTimeCount)) >= EVENTOS_LIFE_TIME)
 			{
-				EventOS_printLog((pInt8)"[update] Event: %d / Priority: %d to Priority: %d", ptagEventListAux->ptagEvent->tagHeader.eEvent,ptagEventListAux->ptagEvent->tagHeader.ePriority, (ptagEventListAux->ptagEvent->tagHeader.ePriority - 1));
+				EventOS_printLog((portCHAR*)"[update] Event: %d / Priority: %d to Priority: %d", ptagEventListAux->ptagEvent->tagHeader.eEvent,ptagEventListAux->ptagEvent->tagHeader.ePriority, (ptagEventListAux->ptagEvent->tagHeader.ePriority - 1));
 				/* Remove from lower priority list */
 				(ptagEventListAux->ptagPrev)->ptagNext = (ptagEventListAux->ptagNext);
 				(ptagEventListAux->ptagNext)->ptagPrev = (ptagEventListAux->ptagPrev);
@@ -353,13 +353,13 @@ __PRIVATE_ void EventOS_updateLifeTime (void)
     @date   20/10/2014
 
 */
-__PRIVATE_ ttag_Event* EventOS_getEvent(void)
+__PRIVATE_ port_EVENT_Type* EventOS_getEvent(void)
 {
 	if(!EventOS_ptagEventOS) return NULL;
 
-	ttag_Event* ptagEvent=NULL;
+	port_EVENT_Type* ptagEvent=NULL;
 	ttag_EventNode* ptagEventListAux = NULL;
-	uInt8 ucPriority = EVENTOS_PRIORITY_HIGH;
+	portUCHAR ucPriority = EVENTOS_PRIORITY_HIGH;
 
 	vPortDisableInterrupts();
 	{
@@ -389,20 +389,20 @@ __PRIVATE_ ttag_Event* EventOS_getEvent(void)
 	method.
 
     @param void
-    @return ttag_Event* - New event slot handler or NULL.
+    @return port_EVENT_Type* - New event slot handler or NULL.
     @author: edielsonpf
   	@date: 08/05/2014
 */
-ttag_Event* EventOS_newEvent(Int16 iEvent, Int16 iPriority, void* pvData, uInt16 uiDataSize)
+port_EVENT_Type* EventOS_newEvent(portINTEGER iEvent, portINTEGER iPriority, void* pvData, portUINTEGER uiDataSize)
 {
 	if(!EventOS_ptagEventOS) return NULL;
 	if(iEvent >= EVENTOS_EVENT_LAST) return NULL;
 	if(iPriority >= EVENTOS_PRIORITY_LAST) return NULL;
 
-	ttag_Event* ptagNewEvent = NULL;
+	port_EVENT_Type* ptagNewEvent = NULL;
 
 	/* create event slot to transmit a dynamic payload */
-	ptagNewEvent = (ttag_Event*)malloc(sizeof(ttag_Event));
+	ptagNewEvent = (port_EVENT_Type*)malloc(sizeof(port_EVENT_Type));
 	if(ptagNewEvent)
 	{
 		ptagNewEvent->tagHeader.eEvent = iEvent;
@@ -422,7 +422,7 @@ ttag_Event* EventOS_newEvent(Int16 iEvent, Int16 iPriority, void* pvData, uInt16
 			}
 		}
 	}
-	EventOS_printLog((pInt8)"[new] Event: %d / Priority: %d", iEvent, iPriority);
+	EventOS_printLog((portCHAR*)"[new] Event: %d / Priority: %d", iEvent, iPriority);
 	return ptagNewEvent;
 }
 
@@ -434,7 +434,7 @@ ttag_Event* EventOS_newEvent(Int16 iEvent, Int16 iPriority, void* pvData, uInt16
     @author gabriels
     @date   02/09/2014
 */
-void    EventOS_setDateTime(ttag_DateTime* ptagDateTime)
+void    EventOS_setDateTime(portRTC_TIME_Type* ptagDateTime)
 {
 	portSET_DATE_TIME(ptagDateTime);
 }
@@ -446,7 +446,7 @@ void    EventOS_setDateTime(ttag_DateTime* ptagDateTime)
     @author gabriels
     @date   02/09/2014
 */
-void    EventOS_getDateTime(ttag_DateTime* ptagDateTime)
+void    EventOS_getDateTime(portRTC_TIME_Type* ptagDateTime)
 {
 	portGET_DATE_TIME(ptagDateTime);
 }
@@ -461,14 +461,14 @@ void    EventOS_getDateTime(ttag_DateTime* ptagDateTime)
     @author gabriels
     @date   15/10/2014
 */
-void  EventOS_printLog(const pInt8 cString, ...)
+void  EventOS_printLog(const portCHAR* cString, ...)
 {
 	#ifdef EVENTOS_DISABLE_LOG
 
 	#else
-		ttag_DateTime tagDateTime;
-		uInt32  ulMsgSize;
-		Int8    cMessage[EVENTOS_LOG_PACKET_SIZE];
+		portRTC_TIME_Type tagDateTime;
+		portULONG  ulMsgSize;
+		portCHAR    cMessage[EVENTOS_LOG_PACKET_SIZE];
 
 
 		va_list arguments;
@@ -492,7 +492,7 @@ void  EventOS_printLog(const pInt8 cString, ...)
     @author edielsonpf
     @date   19/06/2015
 */
-pInt8  EventOS_getVersion(void)
+portCHAR*  EventOS_getVersion(void)
 {
-	return (pInt8) EVENTOS_VERSION;
+	return (portCHAR*) EVENTOS_VERSION;
 }

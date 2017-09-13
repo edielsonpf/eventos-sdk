@@ -15,10 +15,17 @@
 
  */
 
-#ifndef PORTMACRO_H_
-#define PORTMACRO_H_
+#ifndef PORTABLE_H_
+#define PORTABLE_H_
 
-#include "portable.h"
+#ifdef IAR_MSP430
+	#include "..\portable\device\TEXAS\MSP430\portmacro.h"	
+#endif
+
+#ifdef LPCXPRESSO_LPC17xx
+	#include "..\portable\device\NXP\LPC17xx\portmacro.h"	
+#endif
+
 
 /*
  * Setup the hardware ready for the scheduler to take control.  Must setup the system to sleep mode
@@ -26,4 +33,4 @@
  */
 portBASE_TYPE 	xPortStartScheduler( void );
 
-#endif /* PORTMACRO_H_ */
+#endif /* PORTABLE_H_ */

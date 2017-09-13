@@ -29,7 +29,7 @@
 									<listOptionValue builtIn="false" value="DEBUG"/>
 									<listOptionValue builtIn="false" value="__CODE_RED"/>
 									<listOptionValue builtIn="false" value="__USE_CMSIS=CMSISv2p00_LPC17xx"/>
-									<listOptionValue builtIn="false" value="GCC_ARMCM3_LPC17xx"/>
+									<listOptionValue builtIn="false" value="LPCXPRESSO_LPC17xx"/>
 								</option>
 								<option id="gnu.c.compiler.option.misc.other.2111596006" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
 								<option id="gnu.c.compiler.option.include.paths.1749926536" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
@@ -59,7 +59,7 @@
 								<option id="com.crt.advproject.link.gcc.multicore.master.userobjs.1870295434" name="Slave Objects (not visible)" superClass="com.crt.advproject.link.gcc.multicore.master.userobjs"/>
 								<option id="com.crt.advproject.link.arch.257815040" name="Architecture" superClass="com.crt.advproject.link.arch" value="com.crt.advproject.link.target.cm3" valueType="enumerated"/>
 								<option id="com.crt.advproject.link.thumb.1883937871" name="Thumb mode" superClass="com.crt.advproject.link.thumb" value="true" valueType="boolean"/>
-								<option id="com.crt.advproject.link.script.1723430662" name="Linker script" superClass="com.crt.advproject.link.script" value="&quot;EventOS_Examples_Debug.ld&quot;" valueType="string"/>
+								<option id="com.crt.advproject.link.script.1723430662" name="Linker script" superClass="com.crt.advproject.link.script" value="&quot;EventOS_example_Debug.ld&quot;" valueType="string"/>
 								<option id="com.crt.advproject.link.manage.2035222606" name="Manage linker script" superClass="com.crt.advproject.link.manage" value="true" valueType="boolean"/>
 								<option id="gnu.c.link.option.nostdlibs.2017793901" name="No startup or default libs (-nostdlib)" superClass="gnu.c.link.option.nostdlibs" value="true" valueType="boolean"/>
 								<option id="gnu.c.link.option.other.714791349" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList">
@@ -67,8 +67,8 @@
 									<listOptionValue builtIn="false" value="--gc-sections"/>
 								</option>
 								<option id="com.crt.advproject.link.gcc.hdrlib.1385860003" name="Use C library" superClass="com.crt.advproject.link.gcc.hdrlib" value="com.crt.advproject.gcc.link.hdrlib.codered.semihost" valueType="enumerated"/>
-								<option id="gnu.c.link.option.paths.288211019" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths"/>
-								<option id="gnu.c.link.option.libs.726922619" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs"/>
+								<option id="gnu.c.link.option.paths.288211019" name="Library search path (-L)" superClass="gnu.c.link.option.paths"/>
+								<option id="gnu.c.link.option.libs.726922619" name="Libraries (-l)" superClass="gnu.c.link.option.libs"/>
 								<option id="com.crt.advproject.link.gcc.multicore.slave.936126227" name="Multicore slave" superClass="com.crt.advproject.link.gcc.multicore.slave"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1141890781" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -147,7 +147,7 @@
 								<option id="com.crt.advproject.link.gcc.multicore.master.userobjs.588581668" name="Slave Objects (not visible)" superClass="com.crt.advproject.link.gcc.multicore.master.userobjs"/>
 								<option id="com.crt.advproject.link.arch.520262406" name="Architecture" superClass="com.crt.advproject.link.arch" value="com.crt.advproject.link.target.cm3" valueType="enumerated"/>
 								<option id="com.crt.advproject.link.thumb.1412480549" name="Thumb mode" superClass="com.crt.advproject.link.thumb" value="true" valueType="boolean"/>
-								<option id="com.crt.advproject.link.script.482820758" name="Linker script" superClass="com.crt.advproject.link.script" value="&quot;EventOS_Examples_Release.ld&quot;" valueType="string"/>
+								<option id="com.crt.advproject.link.script.482820758" name="Linker script" superClass="com.crt.advproject.link.script" value="&quot;EventOS_example_Release.ld&quot;" valueType="string"/>
 								<option id="com.crt.advproject.link.manage.1768828869" name="Manage linker script" superClass="com.crt.advproject.link.manage" value="true" valueType="boolean"/>
 								<option id="gnu.c.link.option.nostdlibs.1432169200" name="No startup or default libs (-nostdlib)" superClass="gnu.c.link.option.nostdlibs" value="true" valueType="boolean"/>
 								<option id="gnu.c.link.option.other.1889269170" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList">

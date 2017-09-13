@@ -8,8 +8,10 @@
 #ifndef SYSTICKEVENT_H_
 #define SYSTICKEVENT_H_
 
+#include "EventOS.h"
+
 void SystickEvent_new(void);
 void SystickEvent_delete(void);
-uint32_t getMsTicks(void);
+portULONG getMsTicks(void);
 
 #endif /* SYSTICKEVENT_H_ */

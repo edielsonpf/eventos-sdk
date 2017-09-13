@@ -22,7 +22,6 @@
 #include <stdio.h>
 
 /* Scheduler includes. */
-#include "portable.h"
 #include "EventOS.h"
 
 #include "lpc17xx_rtc.h"

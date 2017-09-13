@@ -25,7 +25,6 @@
  * application requirements.
  *
  *----------------------------------------------------------*/
-#include "LPC17xx.h"
 
 #define EVENTOS_VERSION							"EventOS 1.0.1"
 #define  EVENTOS_LOG_PACKET_SIZE				100   /* Max char in log */

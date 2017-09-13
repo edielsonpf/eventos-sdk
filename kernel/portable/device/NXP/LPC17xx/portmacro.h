@@ -15,8 +15,8 @@
 */
 
 
-#ifndef PORT_H
-#define PORT_H
+#ifndef PORTMACRO_H
+#define PORTMACRO_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,7 +45,6 @@ extern "C" {
 #define portSHORT		short
 #define portSTACK_TYPE	unsigned portLONG
 #define portBASE_TYPE	long
-#define portVOID		void
 
 /** @brief Time structure definitions for easy manipulate the data */
 typedef struct {
@@ -58,6 +57,66 @@ typedef struct {
 	portULONG MONTH; 	/*!< Months Register */
 	portULONG YEAR; 	/*!< Years Register */
 } portRTC_TIME_Type;
+
+typedef enum enu_Events
+{
+	/*Kernel events*/
+	EVENTOS_EVENT_SLEEP,
+	EVENTOS_EVENT_WAKEUP,
+
+	/*
+	 * !!! I M P O R T A N T !!!
+	 * Kernel events can be only published by the kernel. If you are not
+	 * the EventOS class, just use it for subscription!
+	 */
+
+	/*Application events*/
+	EVENTOS_EVENT_TICK=10,
+	EVENTOS_EVENT_USB,
+	EVENTOS_EVENT_PACKET,
+	EVENTOS_EVENT_ETHERNET,
+	EVENTOS_EVENT_ERROR,
+	EVENTOS_EVENT_WARNING,
+	EVENTOS_EVENT_TEMPERATURE,
+	EVENTOS_EVENT_SYSTICK,
+	EVENTOS_EVENT_UART,
+	EVENTOS_EVENT_LIGHT,
+
+	/*Must be the last one*/
+	EVENTOS_EVENT_LAST
+}port_EVENT_List;
+
+
+typedef enum enu_Priorities
+{
+	EVENTOS_PRIORITY_HIGH,
+	EVENTOS_PRIORITY_MEDIUM,
+	EVENTOS_PRIORITY_LOW,
+
+	/*Must be the last one*/
+	EVENTOS_PRIORITY_LAST
+}port_PRIORITY_List;
+
+/* Standard header, every event must start with this header. */
+typedef struct tag_Header
+{
+	port_EVENT_List 		eEvent;
+	port_PRIORITY_List		ePriority;
+
+	/*
+	 * !!! I M P O R T A N T !!!
+	 * This variable is the queue control in the EventOS. If you are not
+	 * the EventOS class, don't touch it! This is PRIVETE.
+	 */
+} port_EVENT_Header;
+
+typedef struct tag_Event
+{
+	port_EVENT_Header	tagHeader;
+	void*				pvPayload;
+	portULONG			ulPayloadSize;
+} port_EVENT_Type;
+
 
 #define __HEADER_						volatile
 #define __PRIVATE_						static
@@ -84,9 +143,13 @@ extern void     vPortEnableInterrupts(void);
 
 /* Critical section management. */
 
+/* Defines the prototype to which event handler functions must conform. */
+typedef void (*pdEventHandlerFunction)(void* hHandle, port_EVENT_Type* ptagEvent);
+
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* PORT_H */
+#endif /* PORTMACRO_H */
 

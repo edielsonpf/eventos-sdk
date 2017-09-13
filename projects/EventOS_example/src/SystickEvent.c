@@ -3,8 +3,6 @@
 #include <NXP/crp.h>
 #include <stdio.h>
 
-#include "LPC17xx.h"
-#include "EventOS.h"
 #include "SystickEvent.h"
 #include "Log.h"
 #include "TestFunctions.h"
@@ -22,11 +20,10 @@ void Systick_Handler(void);
 void SystickEvent_new(void);
 void SystickEvent_delete(void);
 void SystickEvent_init();
-void SystickEvent_receiveNewEvent(Handle hHandle, ttag_Event* ptagEvent);
-void SystickEvent_receiveLight(Handle hHandle, ttag_Event* ptagEvent);
-uint32_t getMsTicks(void);
+void SystickEvent_receiveNewEvent(void* hHandle, port_EVENT_Type* ptagEvent);
+void SystickEvent_receiveLight(void* hHandle, port_EVENT_Type* ptagEvent);
 
-volatile uint32_t msTicks; // counter for 1ms SysTicks
+volatile portULONG msTicks; // counter for 1ms SysTicks
 
 void SysTick_Handler(void)
 {
@@ -132,17 +129,17 @@ void SystickEvent_delete(void)
 
 }
 
-void SystickEvent_receiveLight(Handle hHandle, ttag_Event* ptagEvent)
+void SystickEvent_receiveLight(void* hHandle, port_EVENT_Type* ptagEvent)
 {
 	int32_t* iLight = (int32_t*)ptagEvent->pvPayload;
 
 	Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES,LOG_SEVERITY_INFORMATIONAL,"[app] Light: %d", *iLight);
 }
 
-void SystickEvent_receiveNewEvent(Handle hHandle, ttag_Event* ptagEvent)
+void SystickEvent_receiveNewEvent(void* hHandle, port_EVENT_Type* ptagEvent)
 {
-	int32_t iLight;
-	ttag_Event* pEvent = NULL;
+	portLONG iLight;
+	port_EVENT_Type* pEvent = NULL;
 
 	switch (ptagEvent->tagHeader.eEvent) {
 		case EVENTOS_EVENT_ETHERNET:
@@ -151,7 +148,7 @@ void SystickEvent_receiveNewEvent(Handle hHandle, ttag_Event* ptagEvent)
 		case EVENTOS_EVENT_SYSTICK:
 			Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES,LOG_SEVERITY_INFORMATIONAL,"[app] Receiving new event from EventOS (Systick)");
 			iLight = light_read();
-			pEvent = EventOS_newEvent(EVENTOS_EVENT_LIGHT, EVENTOS_PRIORITY_HIGH,(pInt8)&iLight, sizeof(int32_t));
+			pEvent = EventOS_newEvent(EVENTOS_EVENT_LIGHT, EVENTOS_PRIORITY_HIGH,(void*)&iLight, sizeof(portLONG));
 			EventOS_publish(pEvent);
 			break;
 		case EVENTOS_EVENT_TICK:
@@ -163,7 +160,7 @@ void SystickEvent_receiveNewEvent(Handle hHandle, ttag_Event* ptagEvent)
 	}
 }
 
-uint32_t getMsTicks(void)
+portULONG getMsTicks(void)
 {
 	return msTicks;
 }
