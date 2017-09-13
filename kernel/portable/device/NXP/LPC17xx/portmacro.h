@@ -84,7 +84,7 @@ typedef enum enu_Events
 
 	/*Must be the last one*/
 	EVENTOS_EVENT_LAST
-}port_EVENT_List;
+}portEVENT_EVENT_List;
 
 
 typedef enum enu_Priorities
@@ -95,27 +95,27 @@ typedef enum enu_Priorities
 
 	/*Must be the last one*/
 	EVENTOS_PRIORITY_LAST
-}port_PRIORITY_List;
+}portEVENT_PRIORITY_List;
 
 /* Standard header, every event must start with this header. */
 typedef struct tag_Header
 {
-	port_EVENT_List 		eEvent;
-	port_PRIORITY_List		ePriority;
+	portEVENT_EVENT_List 		eEvent;
+	portEVENT_PRIORITY_List		ePriority;
 
 	/*
 	 * !!! I M P O R T A N T !!!
 	 * This variable is the queue control in the EventOS. If you are not
 	 * the EventOS class, don't touch it! This is PRIVETE.
 	 */
-} port_EVENT_Header;
+} portEVENT_Header_Type;
 
 typedef struct tag_Event
 {
-	port_EVENT_Header	tagHeader;
+	portEVENT_Header_Type	tagHeader;
 	void*				pvPayload;
 	portULONG			ulPayloadSize;
-} port_EVENT_Type;
+} portEVENT_EVENT_Type;
 
 
 #define __HEADER_						volatile
@@ -144,7 +144,7 @@ extern void     vPortEnableInterrupts(void);
 /* Critical section management. */
 
 /* Defines the prototype to which event handler functions must conform. */
-typedef void (*pdEventHandlerFunction)(void* hHandle, port_EVENT_Type* ptagEvent);
+typedef void (*pdEventHandlerFunction)(void* hHandle, portEVENT_EVENT_Type* ptagEvent);
 
 
 #ifdef __cplusplus

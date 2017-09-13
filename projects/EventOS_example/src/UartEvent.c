@@ -38,7 +38,7 @@
 *********************************************************/
 
 void UartEvent_init(void);
-void UartEvent_receiveNewEvent(Handle hHandle, ttag_Event* ptagEvent);
+void UartEvent_receiveNewEvent(void* hHandle, portEVENT_EVENT_Type* ptagEvent);
 void UartEvent_pubNewEvent(void);
 
 /*********************************************************
@@ -86,7 +86,7 @@ void UartEvent_init(void)
 	NVIC_EnableIRQ(UART_INTERRUPT);
 }
 
-void UartEvent_receiveNewEvent(Handle hHandle, ttag_Event* ptagEvent)
+void UartEvent_receiveNewEvent(void* hHandle, portEVENT_EVENT_Type* ptagEvent)
 {
 	int8_t x;
 	int8_t y;

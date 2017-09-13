@@ -42,7 +42,7 @@ typedef struct tag_SubscribeNode
 
 typedef struct tag_EventNode
 {
-	port_EVENT_Type* ptagEvent;
+	portEVENT_EVENT_Type* ptagEvent;
 	portULONG		ulLifeTimeCount;
 	struct tag_EventNode* ptagNext;
 	struct tag_EventNode* ptagPrev;
@@ -66,7 +66,7 @@ __PRIVATE_ ttag_EventOS* EventOS_ptagEventOS = NULL;
     private operations.
 *********************************************************/
 __PRIVATE_ void 			EventOS_updateLifeTime (void);
-__PRIVATE_ port_EVENT_Type* EventOS_getEvent(void);
+__PRIVATE_ portEVENT_EVENT_Type* EventOS_getEvent(void);
 __PRIVATE_ void  	 		EventOS_printLog(const portCHAR* cString, ...);
 
 /*********************************************************
@@ -203,7 +203,7 @@ void EventOS_startScheduler( void )
     @author Samuel/Amanda
     @date   22/09/2014
 */
-void EventOS_subscribe (port_EVENT_List eEvent, void* hHandle, pdEventHandlerFunction pFunction)
+void EventOS_subscribe (portEVENT_EVENT_List eEvent, void* hHandle, pdEventHandlerFunction pFunction)
 {
 	if(!EventOS_ptagEventOS) return;
 	if(eEvent >= EVENTOS_EVENT_LAST) return;
@@ -232,7 +232,7 @@ void EventOS_subscribe (port_EVENT_List eEvent, void* hHandle, pdEventHandlerFun
     @date   22/09/2014
 */
 
-void EventOS_publish (port_EVENT_Type* ptagEvent)
+void EventOS_publish (portEVENT_EVENT_Type* ptagEvent)
 {
 	if(!ptagEvent) return;
 	if(!EventOS_ptagEventOS) return;
@@ -272,7 +272,7 @@ void EventOS_processEvents (void)
 	if(!EventOS_ptagEventOS) return;
 
 	ttag_SubscribeNode* ptagSubList;
-	port_EVENT_Type* pEvent = NULL;
+	portEVENT_EVENT_Type* pEvent = NULL;
 
 	pEvent = EventOS_getEvent();
 	while (pEvent)
@@ -353,11 +353,11 @@ __PRIVATE_ void EventOS_updateLifeTime (void)
     @date   20/10/2014
 
 */
-__PRIVATE_ port_EVENT_Type* EventOS_getEvent(void)
+__PRIVATE_ portEVENT_EVENT_Type* EventOS_getEvent(void)
 {
 	if(!EventOS_ptagEventOS) return NULL;
 
-	port_EVENT_Type* ptagEvent=NULL;
+	portEVENT_EVENT_Type* ptagEvent=NULL;
 	ttag_EventNode* ptagEventListAux = NULL;
 	portUCHAR ucPriority = EVENTOS_PRIORITY_HIGH;
 
@@ -389,20 +389,20 @@ __PRIVATE_ port_EVENT_Type* EventOS_getEvent(void)
 	method.
 
     @param void
-    @return port_EVENT_Type* - New event slot handler or NULL.
+    @return portEVENT_EVENT_Type* - New event slot handler or NULL.
     @author: edielsonpf
   	@date: 08/05/2014
 */
-port_EVENT_Type* EventOS_newEvent(portINTEGER iEvent, portINTEGER iPriority, void* pvData, portUINTEGER uiDataSize)
+portEVENT_EVENT_Type* EventOS_newEvent(portINTEGER iEvent, portINTEGER iPriority, void* pvData, portUINTEGER uiDataSize)
 {
 	if(!EventOS_ptagEventOS) return NULL;
 	if(iEvent >= EVENTOS_EVENT_LAST) return NULL;
 	if(iPriority >= EVENTOS_PRIORITY_LAST) return NULL;
 
-	port_EVENT_Type* ptagNewEvent = NULL;
+	portEVENT_EVENT_Type* ptagNewEvent = NULL;
 
 	/* create event slot to transmit a dynamic payload */
-	ptagNewEvent = (port_EVENT_Type*)malloc(sizeof(port_EVENT_Type));
+	ptagNewEvent = (portEVENT_EVENT_Type*)malloc(sizeof(portEVENT_EVENT_Type));
 	if(ptagNewEvent)
 	{
 		ptagNewEvent->tagHeader.eEvent = iEvent;

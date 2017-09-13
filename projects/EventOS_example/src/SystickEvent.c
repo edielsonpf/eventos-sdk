@@ -20,8 +20,8 @@ void Systick_Handler(void);
 void SystickEvent_new(void);
 void SystickEvent_delete(void);
 void SystickEvent_init();
-void SystickEvent_receiveNewEvent(void* hHandle, port_EVENT_Type* ptagEvent);
-void SystickEvent_receiveLight(void* hHandle, port_EVENT_Type* ptagEvent);
+void SystickEvent_receiveNewEvent(void* hHandle, portEVENT_EVENT_Type* ptagEvent);
+void SystickEvent_receiveLight(void* hHandle, portEVENT_EVENT_Type* ptagEvent);
 
 volatile portULONG msTicks; // counter for 1ms SysTicks
 
@@ -129,17 +129,17 @@ void SystickEvent_delete(void)
 
 }
 
-void SystickEvent_receiveLight(void* hHandle, port_EVENT_Type* ptagEvent)
+void SystickEvent_receiveLight(void* hHandle, portEVENT_EVENT_Type* ptagEvent)
 {
 	int32_t* iLight = (int32_t*)ptagEvent->pvPayload;
 
 	Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES,LOG_SEVERITY_INFORMATIONAL,"[app] Light: %d", *iLight);
 }
 
-void SystickEvent_receiveNewEvent(void* hHandle, port_EVENT_Type* ptagEvent)
+void SystickEvent_receiveNewEvent(void* hHandle, portEVENT_EVENT_Type* ptagEvent)
 {
 	portLONG iLight;
-	port_EVENT_Type* pEvent = NULL;
+	portEVENT_EVENT_Type* pEvent = NULL;
 
 	switch (ptagEvent->tagHeader.eEvent) {
 		case EVENTOS_EVENT_ETHERNET:

@@ -32,9 +32,9 @@
 void				EventOS_createInstance(void);
 void 				EventOS_deleteInstance(void);
 void 				EventOS_startScheduler(void);
-void 				EventOS_subscribe (port_EVENT_List eEvent, void* hHandle, pdEventHandlerFunction pFunction);
-void				EventOS_publish (port_EVENT_Type* ptagEvent);
-port_EVENT_Type* 	EventOS_newEvent(portINTEGER iEvent, portINTEGER iPriority, void* pvData, portUINTEGER uiDataSize);
+void 				EventOS_subscribe (portEVENT_EVENT_List eEvent, void* hHandle, pdEventHandlerFunction pFunction);
+void				EventOS_publish (portEVENT_EVENT_Type* ptagEvent);
+portEVENT_EVENT_Type* 	EventOS_newEvent(portINTEGER iEvent, portINTEGER iPriority, void* pvData, portUINTEGER uiDataSize);
 void    			EventOS_setDateTime(portRTC_TIME_Type* ptagDateTime);
 void    			EventOS_getDateTime(portRTC_TIME_Type* ptagDateTime);
 portCHAR*			EventOS_getVersion(void);
