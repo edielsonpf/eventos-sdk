@@ -26,10 +26,10 @@
  *
  *----------------------------------------------------------*/
 
-#define EVENTOS_VERSION							"EventOS 1.0.1"
 #define  EVENTOS_LOG_PACKET_SIZE				100   /* Max char in log */
 //#define  EVENTOS_DISABLE_LOG
 
+#define configEVENTOS_LIFE_TIME						( 3 )
 
 
 /* Use the system definition, if there is one */
@@ -41,5 +41,6 @@
 
 /* The lowest priority. */
 #define configKERNEL_INTERRUPT_PRIORITY 	( 31 << (8 - configPRIO_BITS) )
+#define configMAX_EVENT_NAME_LEN			( 12 )
 
 #endif /* EVENTOSCONFIG_H_ */
