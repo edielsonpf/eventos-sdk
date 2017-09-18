@@ -21,7 +21,8 @@
 void Application_new(void);
 void Application_delete(void);
 void Application_init(void);
-Application_initI2C(void);
+void Application_initI2C(void);
+void Application_initSysTick(void);
 void Application_receiveNewEvent(portBASE_TYPE EventType, void* pvHandler, void* pvPayload, portBASE_TYPE xPayloadSize);
 void Application_receiveLight(portBASE_TYPE EventType, void* pvHandler, void* pvPayload, portBASE_TYPE xPayloadSize);
 
@@ -31,8 +32,6 @@ void SysTick_Handler(void)
 {
 
 	msTicks++;
-
-	void* pEventSlot;
 
 	//Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES,LOG_SEVERITY_INFORMATIONAL,"Handling new Application interrupt\n");
 
@@ -54,7 +53,7 @@ void SysTick_Handler(void)
 	if(msTicks % 10000 == 0)
 	{
 		Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES,LOG_SEVERITY_INFORMATIONAL,"[app] Publishing new event: Application");
-		xEvent_publish(EVENT_SYS_Application, EVENT_PRIORITY_HIGH, NULL, 0);
+		xEvent_publish(EVENT_SYS_SYSTICK, EVENT_PRIORITY_HIGH, NULL, 0);
 
 	    msTicks = 0;
 	}
@@ -62,7 +61,7 @@ void SysTick_Handler(void)
 
 
 
-static void Application_initI2C(void)
+void Application_initI2C(void)
 {
 	PINSEL_CFG_Type PinCfg;
 
@@ -95,7 +94,7 @@ void Application_new(void)
 					 NULL);
 
 	xEvent_subscribe(Application_receiveNewEvent,
-						 EVENT_SYS_Application,
+						 EVENT_SYS_SYSTICK,
 						 NULL);
 
 	xEvent_subscribe(Application_receiveNewEvent,
@@ -108,7 +107,7 @@ void Application_new(void)
 }
 
 
-void Application_initSysTick()
+void Application_initSysTick(void)
 {
 
 	// Setup Systick Timer to interrupt at 1 msec intervals
@@ -134,11 +133,10 @@ void Application_receiveLight(portBASE_TYPE EventType, void* pvHandler, void* pv
 void Application_receiveNewEvent(portBASE_TYPE EventType, void* pvHandler, void* pvPayload, portBASE_TYPE XPayloadSize)
 {
 	portLONG iLight;
-	portEVENT_EVENT_Type* pEvent = NULL;
 
 	switch (EventType)
 	{
-		case EVENT_SYS_Application:
+		case EVENT_SYS_SYSTICK:
 			Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES,LOG_SEVERITY_INFORMATIONAL,"[app] Receiving new event from EventOS (Systick)");
 			iLight = light_read();
 			xEvent_publish(EVENT_APP_LIGHT, EVENT_PRIORITY_LOW, &iLight, sizeof(portLONG));

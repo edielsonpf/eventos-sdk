@@ -30,7 +30,6 @@ struct xLIST_NODE
 	void* pvOwner;								/*< Pointer to the object that contains the list item.  There is therefore a two way link between the object containing the list item and the list item itself. */
 	void* pvContainer;							/*< Pointer to the list in which this list item is placed (if any). */
 };
-
 typedef struct xLIST_NODE xListNode;
 
 struct xLIST_SENTINEL
@@ -39,7 +38,6 @@ struct xLIST_SENTINEL
 	volatile struct xLIST_NODE* pxNext;		/*< Pointer to the next xListItem in the list. */
 	volatile struct xLIST_NODE* pxPrevious;	/*< Pointer to the previous xListItem in the list. */
 };
-
 typedef struct xLIST_SENTINEL xSentinelListNode;
 
 /*
@@ -101,7 +99,7 @@ typedef struct xLIST
  * \page listGET_OWNER_OF_HEAD_ENTRY listGET_OWNER_OF_HEAD_ENTRY
  * \ingroup LinkedList
  */
-#define listGET_OWNER_OF_HEAD_ENTRY( pxList )  ( ( pxList->ulNumberOfNodes != ( unsigned portBASE_TYPE ) 0 ) ? ( (&( pxList->xListSentinel ))->pxNext->pxOwner ) : ( NULL ) )
+#define listGET_OWNER_OF_HEAD_ENTRY( pxList )  ( ( ( pxList )->xNumberOfNodes != ( unsigned portBASE_TYPE ) 0 ) ? ( ( &( ( pxList )->xListSentinel ) )->pxNext->pvOwner ) : ( NULL ) )
 
 
 /*
@@ -130,7 +128,7 @@ typedef struct xLIST
  * \page listLIST_IS_EMPTY listLIST_IS_EMPTY
  * \ingroup LinkedList
  */
-#define listIS_EMPTY( pxList ) ( pxList->xNumberOfNodes == ( unsigned portBASE_TYPE ) 0 )
+#define listIS_EMPTY( pxList ) ( ( pxList )->xNumberOfNodes == ( unsigned portBASE_TYPE ) 0 )
 
 /**
 	This method is responsible responsible for initializing

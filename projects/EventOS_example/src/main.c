@@ -16,9 +16,9 @@
 
 int main()
 {
-	Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES, LOG_SEVERITY_INFORMATIONAL, (char*)xEvent_getVersion());
+	Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES, LOG_SEVERITY_INFORMATIONAL, (char*)pxEvent_getVersion());
 
-	SystickEvent_new();
+	Application_new();
 
 	vEvent_startScheduler();
 	/*Should never reach here*/

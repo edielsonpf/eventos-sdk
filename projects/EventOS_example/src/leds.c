@@ -28,7 +28,6 @@
 
 #include "LPC17xx.h"
 #include "leds.h"
-#include "UartEvent.h"
 
 // Function to initialise GPIO to access LED2
 void led2_init (void)

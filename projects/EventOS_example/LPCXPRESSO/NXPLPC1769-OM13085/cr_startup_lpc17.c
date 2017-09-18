@@ -178,7 +178,7 @@ void (* const g_pfnVectors[])(void) = {
 	UART0_IRQHandler,						// 21, 0x54 - UART0
 	UART1_IRQHandler,						// 22, 0x58 - UART1
 	UART2_IRQHandler,						// 23, 0x5c - UART2
-	xPortUart3Handler,						// 24, 0x60 - UART3
+	UART3_IRQHandler,						// 24, 0x60 - UART3
 	PWM1_IRQHandler,						// 25, 0x64 - PWM1
 	I2C0_IRQHandler,						// 26, 0x68 - I2C0
 	I2C1_IRQHandler,						// 27, 0x6c - I2C1

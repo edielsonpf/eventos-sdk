@@ -95,6 +95,12 @@ __PRIVATE_ volatile unsigned portBASE_TYPE ulProcessStamp = ( unsigned portBASE_
  */
 #define prvEvent_addEventToList( pxECB ) vList_insert( ( xList* ) &( pxEventsLists[ pxECB->ulEventPriority ] ), &( pxECB->xEventListNode ) );	\
 
+/*
+ * Place the event represented by pxECB into the appropriate event priority queue.
+ * It is inserted at the right position in the list, considering the deadline set on ulNodeValue.
+ */
+#define prvEvent_removeEventFromList( pxECB ) vList_remove( &( pxECB->xEventListNode ) );	\
+
 
 __PRIVATE_ void prvEvent_deleteECB( evtECB* pxECB );
 __PRIVATE_ void prvEvent_initializeEventLists( void );
@@ -157,7 +163,7 @@ __PRIVATE_ void prvEvent_initializeSCBVariables( evtSCB* pxSCB, pdEVENT_HANDLER_
 
 	/* Set the pxSCB as a link back from the xListNode.  This is so we can get
 	back to	the containing SCB from a generic node in a list. */
-	listSET_LIST_NODE_OWNER( &( pxSCB->xSubscriberListNode ), pxSCB );
+	listSET_LIST_NODE_OWNER((xListNode*) &( pxSCB->xSubscriberListNode ), pxSCB );
 }
 
 __PRIVATE_ void prvEvent_initializeECBVariables( evtECB* pxECB, unsigned portBASE_TYPE ulEventType, unsigned portBASE_TYPE ulEventPriority)
@@ -186,7 +192,7 @@ __PRIVATE_ void prvEvent_initializeECBVariables( evtECB* pxECB, unsigned portBAS
 
 	/* Set the pxECB as a link back from the xListNode.  This is so we can get
 	back to	the containing SCB from a generic node in a list. */
-	listSET_LIST_NODE_OWNER( &( pxECB->xEventListNode ), pxECB );
+	listSET_LIST_NODE_OWNER((xListNode*) &( pxECB->xEventListNode ), pxECB );
 	/* Event lists are always in priority order. */
 	listSET_LIST_NODE_VALUE( &( pxECB->xEventListNode ), ( portBASE_TYPE ) prxEvent_getProcessStamp());
 
@@ -322,7 +328,7 @@ void vEvent_processEvents (void)
 		//EventOS_printLog((portCHAR*)"[process] Event: %d / Priority: %d", pEvent->xHeader.eEvent,pEvent->xHeader.ePriority);
 
 		/*take the first subscriber from the sub list related to the event*/
-		listGET_OWNER_OF_NEXT_NODE( pxSCB, ( xList* ) &( pxCurrentECB->pxSubscriberList ))
+		listGET_OWNER_OF_NEXT_NODE( pxSCB, ( xList* ) pxCurrentECB->pxSubscriberList );
 		while(pxSCB)
 		{
 			if((pxSCB->ulEventType == pxCurrentECB->ulEventType)&&( pxSCB->pdEventHandlerFunction))
@@ -330,7 +336,7 @@ void vEvent_processEvents (void)
 				pxSCB->pdEventHandlerFunction(pxSCB->ulEventType,pxSCB->pvHandler,pxCurrentECB->pvPayload,pxCurrentECB->ulPayloadSize); //call event related function
 			}
 			/*take the next subscriber from the sub list related to the event*/
-			listGET_OWNER_OF_NEXT_NODE( pxSCB, ( xList* ) &( pxCurrentECB->pxSubscriberList ))
+			listGET_OWNER_OF_NEXT_NODE( pxSCB, ( xList* ) pxCurrentECB->pxSubscriberList );
 		}
 		/*discard event after processed by all subscribers*/
 		prvEvent_terminateEvent(pxCurrentECB);
@@ -356,27 +362,29 @@ __PRIVATE_ void prvEvent_updateLifeTime (void)
 
 	while(ulPriority < EVENT_PRIORITY_LAST)
 	{
-
-		if(listIS_EMPTY( (xList*) &( pxEventsLists[ ulPriority ] ) ) ) ulPriority++;
+		if( listIS_EMPTY((xList*) &( pxEventsLists[ ulPriority ] ) ) )
+		{
+			ulPriority++;
+		}
 		else
 		{
 			pxECB = listGET_OWNER_OF_HEAD_ENTRY((xList*)&( pxEventsLists[ ulPriority ] ) );
 
-			if(((portBASE_TYPE)(prxEvent_getProcessStamp() - listGET_LIST_ITEM_VALUE(pxECB->xEventListNode))) >= EVENTOS_LIFE_TIME)
+			if(((portBASE_TYPE)(prxEvent_getProcessStamp() - listGET_LIST_ITEM_VALUE( &( pxECB->xEventListNode )))) >= configEVENTOS_LIFE_TIME)
 			{
 				//EventOS_printLog((portCHAR*)"[update] Event: %d / Priority: %d to Priority: %d", pxEventListAux->pxEvent->xHeader.eEvent,pxEventListAux->pxEvent->xHeader.ePriority, (pxEventListAux->pxEvent->xHeader.ePriority - 1));
 
 				portDISABLE_INTERRUPTS();
 				{
 					/* Remove from lower priority list */
-					vList_remove(pxECB->xEventListNode);
+					prvEvent_removeEventFromList( pxECB );
 
 					/* Update ctrl variables */
 					prvEvent_increaseEventPriority(pxECB);
-					listSET_LIST_NODE_VALUE(pxECB->xEventListNode,prxEvent_getProcessStamp());
+					listSET_LIST_NODE_VALUE( &( pxECB->xEventListNode), prxEvent_getProcessStamp() );
 
 					/* Insert from higher priority list */
-					vList_insert((xList*)&( pxEventsLists[prxEvent_getEventPriority(pxECB)] ));
+					prvEvent_addEventToList( pxECB );
 				}
 				portENABLE_INTERRUPTS();
 			}
@@ -400,9 +408,9 @@ __PRIVATE_ void prvEvent_getNextEvent(evtECB* pxECB)
 	pxECB = NULL;
 
 	/*check the event list with highest priority that is not empty*/
-	while ((xPriority < EVENTOS_PRIORITY_LAST) && (pxECB == NULL))
+	while ((xPriority < EVENT_PRIORITY_LAST) && (pxECB == NULL))
 	{
-		pxECB = listGET_OWNER_OF_HEAD_ENTRY(( xList* ) &( pxEventsLists[ xPriority ] ));
+		pxECB = (evtECB*) listGET_OWNER_OF_HEAD_ENTRY(( xList* ) &( pxEventsLists[ xPriority ] ) );
 		xPriority++;
 	}
 }
@@ -476,7 +484,7 @@ __PRIVATE_ void prvEvent_deleteECB( evtECB* pxECB )
 	/* Free up the memory allocated by the scheduler for the task.  It is up to
 	the task to free any memory allocated at the application level. */
 	vPortFree( pxECB->pvPayload );
-	vPortFree( pxTCB );
+	vPortFree( pxECB );
 }
 
 
