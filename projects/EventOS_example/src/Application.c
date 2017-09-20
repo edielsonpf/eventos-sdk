@@ -18,8 +18,6 @@
     private operations.
 *********************************************************/
 
-void Application_new(void);
-void Application_delete(void);
 void Application_init(void);
 void Application_initI2C(void);
 void Application_initSysTick(void);
@@ -127,7 +125,7 @@ void Application_receiveLight(portBASE_TYPE EventType, void* pvHandler, void* pv
 {
 	int32_t* iLight = (int32_t*)pvPayload;
 
-	Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES,LOG_SEVERITY_INFORMATIONAL,"[app] Light: %d", *iLight);
+	Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES,LOG_SEVERITY_INFORMATIONAL,"[app] Received light: %d", *iLight);
 }
 
 void Application_receiveNewEvent(portBASE_TYPE EventType, void* pvHandler, void* pvPayload, portBASE_TYPE XPayloadSize)
