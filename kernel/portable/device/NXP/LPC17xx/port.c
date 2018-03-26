@@ -23,6 +23,7 @@
 
 /* Scheduler includes. */
 #include "EventOS.h"
+#include "event.h"
 
 #include "lpc17xx_rtc.h"
 
@@ -195,5 +196,5 @@ void vPortEnableInterrupts(void)
 
 void xPortPendSVHandler(void)
 {
-	EventOS_processEvents();
+	vEvent_processEvents();
 }

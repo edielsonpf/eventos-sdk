@@ -32,7 +32,7 @@
 /* Includes ------------------------------------------------------------------- */
 #include "lpc17xx_uart.h"
 #include "lpc17xx_clkpwr.h"
-
+#include "string.h"
 /* If this source file built with example, the LPC17xx FW library configuration
  * file in each example directory ("lpc17xx_libcfg.h") must be included,
  * otherwise the default FW library configuration file must be included instead

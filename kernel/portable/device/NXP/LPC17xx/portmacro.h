@@ -46,6 +46,14 @@ extern "C" {
 #define portSTACK_TYPE	unsigned portLONG
 #define portBASE_TYPE	long
 
+typedef unsigned portLONG portTickType;
+#define portMAX_DELAY ( portTickType ) 0xffffffff
+
+#define pdTRUE		( 1 )
+#define pdFALSE		( 0 )
+#define pdPASS		pdTRUE
+
+
 /** @brief Time structure definitions for easy manipulate the data */
 typedef struct {
 	portULONG SEC; 		/*!< Seconds Register */
@@ -57,66 +65,6 @@ typedef struct {
 	portULONG MONTH; 	/*!< Months Register */
 	portULONG YEAR; 	/*!< Years Register */
 } portRTC_TIME_Type;
-
-typedef enum enu_Events
-{
-	/*Kernel events*/
-	EVENTOS_EVENT_SLEEP,
-	EVENTOS_EVENT_WAKEUP,
-
-	/*
-	 * !!! I M P O R T A N T !!!
-	 * Kernel events can be only published by the kernel. If you are not
-	 * the EventOS class, just use it for subscription!
-	 */
-
-	/*Application events*/
-	EVENTOS_EVENT_TICK=10,
-	EVENTOS_EVENT_USB,
-	EVENTOS_EVENT_PACKET,
-	EVENTOS_EVENT_ETHERNET,
-	EVENTOS_EVENT_ERROR,
-	EVENTOS_EVENT_WARNING,
-	EVENTOS_EVENT_TEMPERATURE,
-	EVENTOS_EVENT_SYSTICK,
-	EVENTOS_EVENT_UART,
-	EVENTOS_EVENT_LIGHT,
-
-	/*Must be the last one*/
-	EVENTOS_EVENT_LAST
-}portEVENT_EVENT_List;
-
-
-typedef enum enu_Priorities
-{
-	EVENTOS_PRIORITY_HIGH,
-	EVENTOS_PRIORITY_MEDIUM,
-	EVENTOS_PRIORITY_LOW,
-
-	/*Must be the last one*/
-	EVENTOS_PRIORITY_LAST
-}portEVENT_PRIORITY_List;
-
-/* Standard header, every event must start with this header. */
-typedef struct tag_Header
-{
-	portEVENT_EVENT_List 		eEvent;
-	portEVENT_PRIORITY_List		ePriority;
-
-	/*
-	 * !!! I M P O R T A N T !!!
-	 * This variable is the queue control in the EventOS. If you are not
-	 * the EventOS class, don't touch it! This is PRIVETE.
-	 */
-} portEVENT_Header_Type;
-
-typedef struct tag_Event
-{
-	portEVENT_Header_Type	tagHeader;
-	void*				pvPayload;
-	portULONG			ulPayloadSize;
-} portEVENT_EVENT_Type;
-
 
 #define __HEADER_						volatile
 #define __PRIVATE_						static
@@ -137,14 +85,20 @@ extern void     vPortEnableInterrupts(void);
 #define portGET_DATE_TIME(pDateTime)			vPortGetDateTime(pDateTime)
 #define portSET_DATE_TIME(pDateTime)			vPortSetDateTime(pDateTime)
 #define portPRINT_LOG_CONSOLE(pMessage)         vPortPrintLog(pMessage)
-#define portDISABLE_INTERRUPTS()				vPortDissableInterrupts()
+#define portDISABLE_INTERRUPTS()				vPortDisableInterrupts()
 #define portENABLE_INTERRUPTS()					vPortEnableInterrupts()
 /*-----------------------------------------------------------*/
 
-/* Critical section management. */
+/*
+ * Map to the memory management routines required for the port.
+ */
+#define pvPortMalloc( xSize ) malloc( xSize );
+#define vPortFree( pvMemory ) free( pvMemory );
 
-/* Defines the prototype to which event handler functions must conform. */
-typedef void (*pdEventHandlerFunction)(void* hHandle, portEVENT_EVENT_Type* ptagEvent);
+///* Critical section management. */
+//
+///* Defines the prototype to which event handler functions must conform. */
+//typedef void (*pdEventHandlerFunction)(void* hHandle, portEVENT_EVENT_Type* ptagEvent);
 
 
 #ifdef __cplusplus
