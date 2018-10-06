@@ -43,4 +43,6 @@
 #define configKERNEL_INTERRUPT_PRIORITY 	( 31 << (8 - configPRIO_BITS) )
 #define configMAX_EVENT_NAME_LEN			( 12 )
 
+#define configMAX_NUM_EVENTS				( 256 )
+
 #endif /* EVENTOSCONFIG_H_ */

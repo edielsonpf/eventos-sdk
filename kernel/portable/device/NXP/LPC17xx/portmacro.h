@@ -52,6 +52,7 @@ typedef unsigned portLONG portTickType;
 #define pdTRUE		( 1 )
 #define pdFALSE		( 0 )
 #define pdPASS		pdTRUE
+#define pdFAIL		pdFALSE
 
 
 /** @brief Time structure definitions for easy manipulate the data */

@@ -16,9 +16,15 @@
 
 int main()
 {
-	Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES, LOG_SEVERITY_INFORMATIONAL, (char*)pxEvent_getVersion());
+	portCHAR szKernel_Version[100];
 
-	Application_new();
+	xEvent_getVersion(szKernel_Version);
+
+	Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES, LOG_SEVERITY_INFORMATIONAL, szKernel_Version);
+
+	/* Check inside Application how events
+	 * are registered and managed*/
+	Application_initialize();
 
 	vEvent_startScheduler();
 	/*Should never reach here*/

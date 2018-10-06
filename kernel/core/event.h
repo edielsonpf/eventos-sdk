@@ -90,9 +90,10 @@ typedef void (*pdEVENT_HANDLER_FUNCTION)( portBASE_TYPE, void*, void*, portBASE_
 *********************************************************/
 
 void 					vEvent_startScheduler( void );
+signed portBASE_TYPE 	xEvent_register (void* pvEventOwner, portCHAR* pszEventName, unsigned portBASE_TYPE* ulEventKey);
 signed portBASE_TYPE 	xEvent_subscribe (pdEVENT_HANDLER_FUNCTION pFunction, portBASE_TYPE	ulEventType, void* pvSubscriber);
-signed portBASE_TYPE 	xEvent_publish (portBASE_TYPE ulEventType, portBASE_TYPE ulPriority, void* pvPayload, portBASE_TYPE ulPayloadSize);
-portCHAR*  				pxEvent_getVersion(void);
+signed portBASE_TYPE 	xEvent_publish (void* pvPublisher, portBASE_TYPE ulEventType, portBASE_TYPE ulPriority, void* pvPayload, portBASE_TYPE ulPayloadSize);
+signed portBASE_TYPE  	xEvent_getVersion(portCHAR* pszKernelVersion);
 
 /*-----------------------------------------------------------
  * SCHEDULER INTERNALS AVAILABLE FOR PORTING PURPOSES
