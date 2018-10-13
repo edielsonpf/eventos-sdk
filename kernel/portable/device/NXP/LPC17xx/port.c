@@ -25,7 +25,9 @@
 #include "EventOS.h"
 #include "event.h"
 
-#include "lpc17xx_rtc.h"
+/* Portable includes ------------------------------------------------------------------- */
+#include "LPC17xx.h"
+#include "lpc_types.h"
 
 /* Constants required to manipulate the NVIC. */
 #define portNVIC_SYSPRI2			( ( volatile unsigned long *) 0xe000ed20 )
@@ -74,70 +76,6 @@ void vPortEnterSleepMode( void )
 #else
 	while(1);
 #endif
-}
-
-/**
-	Start RTC
-
-    @param void
-    @return void
-    @author gabriels
-    @date   25/09/2014
-*/
-void vPortStartRtc(void)
-{
-	/* RTC init module*/
-	RTC_Init(LPC_RTC);
-	/* Enable rtc (starts increase the tick counter and second counter register) */
-	RTC_ResetClockTickCounter(LPC_RTC);
-	RTC_Cmd(LPC_RTC, ENABLE);
-}
-
-/**
-	Get rtc date and time
-
-    @param void
-    @return void
-    @author gabriels
-    @date   25/09/2014
-*/
-void vPortGetDateTime(portRTC_TIME_Type* ptagDateTime)
-{
-	RTC_TIME_Type ptagRtc;
-
-	RTC_GetFullTime (LPC_RTC, &ptagRtc);
-
-	ptagDateTime->DOM = ptagRtc.DOM;
-	ptagDateTime->DOW = ptagRtc.DOW;
-	ptagDateTime->DOY = ptagRtc.DOY;
-	ptagDateTime->HOUR = ptagRtc.HOUR;
-	ptagDateTime->MIN = ptagRtc.MIN;
-	ptagDateTime->MONTH = ptagRtc.MONTH;
-	ptagDateTime->SEC = ptagRtc.SEC;
-	ptagDateTime->YEAR = ptagRtc.YEAR;
-}
-/**
-	Set rtc date and time
-
-    @param void
-    @return void
-    @author gabriels
-    @date   25/09/2014
-*/
-void vPortSetDateTime(portRTC_TIME_Type* ptagDateTime)
-{
-	RTC_TIME_Type ptagRtc;
-
-	ptagRtc.DOM = ptagDateTime->DOM;
-	ptagRtc.DOW = ptagDateTime->DOW;
-	ptagRtc.DOY = ptagDateTime->DOY;
-	ptagRtc.HOUR = ptagDateTime->HOUR;
-	ptagRtc.MIN = ptagDateTime->MIN;
-	ptagRtc.MONTH = ptagDateTime->MONTH;
-	ptagRtc.SEC = ptagDateTime->SEC;
-	ptagRtc.YEAR = ptagDateTime->YEAR;
-
-	RTC_SetFullTime (LPC_RTC, &ptagRtc);
 }
 
 /**
