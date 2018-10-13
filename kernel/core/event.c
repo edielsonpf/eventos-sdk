@@ -148,17 +148,23 @@ __PRIVATE_ volatile unsigned portBASE_TYPE evt_ulProcessStamp = ( unsigned portB
 __PRIVATE_ void prvEvent_deleteECB( evtECB* pxECB );
 __PRIVATE_ void prvEvent_initializeEventLists( void );
 __PRIVATE_ void prvEvent_initializeEventAdmin( void );
-__PRIVATE_ void prvEvent_initializeSCBVariables( evtSCB* pxSCB, pdEVENT_HANDLER_FUNCTION pFunction, portBASE_TYPE	ulEventKey, void* pvSubscriber);
-__PRIVATE_ void prvEvent_initializeECBVariables( evtECB* pxECB, unsigned portBASE_TYPE ulEventKey, unsigned portBASE_TYPE ulEventPriority);
+__PRIVATE_ void prvEvent_initializeSCBVariables( evtSCB* pxSCB,
+												 pdEVENT_HANDLER_FUNCTION pFunction,
+												 unsigned portBASE_TYPE	ulEventKey,
+												 void* pvSubscriber);
+__PRIVATE_ void prvEvent_initializeECBVariables( evtECB* pxECB,
+												 unsigned portBASE_TYPE ulEventKey,
+												 unsigned portBASE_TYPE ulEventPriority);
 __PRIVATE_ void prvEvent_incrementProcessStamp( void );
-__PRIVATE_ signed portBASE_TYPE prxEvent_getProcessStamp( portTickType*  pulProcessStamp);
+__PRIVATE_ void prvEvent_getProcessStamp( portTickType*  pulProcessStamp);
 __PRIVATE_ void prvEvent_updateLifeTime (void);
 __PRIVATE_ void prvEvent_getNextEvent(evtECB* pxECB);
 __PRIVATE_ void prvEvent_increaseEventPriority(evtECB* pxECB);
-__PRIVATE_ void prvEvent_decreaseEventPriority(evtECB* pxECB);
 __PRIVATE_ void prvEvent_terminateEvent( evtECB* pxECB );
 __PRIVATE_ void prvEvent_deleteECB( evtECB* pxECB );
-__PRIVATE_ signed portBASE_TYPE prvEvent_generateEventKey(void* pvEventOwner, portCHAR* pszEventName, unsigned portBASE_TYPE* ulEventKey);
+__PRIVATE_ void prvEvent_generateEventKey(void* pvEventOwner,
+										  portCHAR* szEventName,
+										  unsigned portBASE_TYPE* ulEventKey);
 
 /*********************************************************
     Operations implementation
@@ -215,46 +221,48 @@ signed portBASE_TYPE xEvent_register (	void* pvEventOwner,
 
 	/**
 	 * This method generates a new event key based on
-	 * event name. For future implementation,
+	 * the event name. For future implementation,
 	 * the pvOwner can be used to make the key
 	 * more specific or even create any security key.
 	 */
-	xReturn = prvEvent_generateEventKey(pvEventOwner, pszEventName, &ulNewKey);
+	prvEvent_generateEventKey(pvEventOwner, pszEventName, &ulNewKey);
 
-	if(xReturn == pdPASS)
+	/*
+	 * We have to check if the event administration is already in use
+	 * for this specific key. This is important to keep the key
+	 * unique in the system.
+	 * */
+	if(prvEvent_checkEventKey(ulNewKey) == pdFALSE)
 	{
-		/*
-		 * We have to check if the event administration is already in use
-		 * for this specific key. This is important to keep the key
-		 * unique in the system.
-		 * */
-		if(prvEvent_checkEventKey(ulNewKey) == pdFALSE)
+		portDISABLE_INTERRUPTS();
 		{
-			portDISABLE_INTERRUPTS();
-			{
-				pxEventAdminList[ulNewKey].bInUse = pdTRUE;
-				pxEventAdminList[ulNewKey].ulEventKey = ulNewKey;
-				strncpy(pxEventAdminList[ulNewKey].szEventName, pszEventName, configMAX_EVENT_NAME_LEN);
-				pxEventAdminList[ulNewKey].pvEventOwner = pvEventOwner;
-				pxEventAdminList[ulNewKey].ulCurrentNumberOfSubscribers = 0;
+			pxEventAdminList[ulNewKey].bInUse = pdTRUE;
+			pxEventAdminList[ulNewKey].ulEventKey = ulNewKey;
+			strncpy(pxEventAdminList[ulNewKey].szEventName,
+					pszEventName,
+					configMAX_EVENT_NAME_LEN);
+			pxEventAdminList[ulNewKey].pvEventOwner = pvEventOwner;
+			pxEventAdminList[ulNewKey].ulCurrentNumberOfSubscribers = 0;
 
-				evt_ulCurrentNumberOfRegEvents++;
+			evt_ulCurrentNumberOfRegEvents++;
 
-				/*
-				 * return the new event key to the user.
-				 */
-				*pulEventKey = ulNewKey;
-			}
-			portENABLE_INTERRUPTS();
+			/*
+			 * return the new event key to the user.
+			 */
+			*pulEventKey = ulNewKey;
 		}
-		else
-		{
-			*pulEventKey = 0;
-			xReturn = pdFAIL;
-		}
-
+		portENABLE_INTERRUPTS();
 	}
-	//EventOS_printLog((portCHAR*)"[subscribe] Event: %d", eEvent);
+	else
+	{
+		/* For now, we consider just one event admin per key.
+		 * Further version can use a linked list of event
+		 * admin per key. */
+
+		*pulEventKey = 0;
+		xReturn = pdFAIL;
+	}
+
 	return xReturn;
 }
 
@@ -269,7 +277,7 @@ signed portBASE_TYPE xEvent_register (	void* pvEventOwner,
     @date   15/09/2017
 */
 signed portBASE_TYPE xEvent_subscribe (	pdEVENT_HANDLER_FUNCTION pFunction,
-										portBASE_TYPE ulEventKey,
+										unsigned portBASE_TYPE ulEventKey,
 										void* pvSubscriber)
 {
 	if(ulEventKey >= (portBASE_TYPE)EVENT_TYPE_LAST) return pdFAIL;
@@ -315,10 +323,10 @@ signed portBASE_TYPE xEvent_subscribe (	pdEVENT_HANDLER_FUNCTION pFunction,
 */
 
 signed portBASE_TYPE xEvent_publish (void* pvPublisher,
-									 portBASE_TYPE ulEventKey,
-									 portBASE_TYPE ulPriority,
+									 unsigned portBASE_TYPE ulEventKey,
+									 unsigned portBASE_TYPE ulPriority,
 									 void* pvPayload,
-									 portBASE_TYPE ulPayloadSize)
+									 unsigned portBASE_TYPE ulPayloadSize)
 {
 	if (ulEventKey >= EVENT_TYPE_LAST) return pdFAIL;
 	if (ulPriority >= EVENT_PRIORITY_LAST) return pdFAIL;
@@ -398,22 +406,20 @@ void vEvent_processEvents (void)
     @author edielsonpf
     @date   19/09/2017
 */
-signed portBASE_TYPE  xEvent_getVersion(portCHAR* pszKernelVersion)
+signed portBASE_TYPE  xEvent_getVersion(portCHAR* szKernelVersion)
 {
-	if(pszKernelVersion == NULL) return pdFAIL;
+	if(szKernelVersion == NULL) return pdFAIL;
 
-	pszKernelVersion = (portCHAR*) evnKERNEL_VERSION_NUMBER;
+	szKernelVersion = (portCHAR*) evnKERNEL_VERSION_NUMBER;
 
 	return pdPASS;
 }
 
 //======================================================================
 
-__PRIVATE_ signed portBASE_TYPE prxEvent_getProcessStamp( portTickType*  pulProcessStamp)
+__PRIVATE_ void prvEvent_getProcessStamp( portTickType*  pulProcessStamp)
 {
 	*pulProcessStamp = evt_ulProcessStamp;
-
-	return pdPASS;
 }
 
 __PRIVATE_ void prvEvent_initializeEventLists( void )
@@ -443,7 +449,10 @@ __PRIVATE_ void prvEvent_initializeEventAdmin( void )
 	prvEvent_initializeEventLists();
 }
 
-__PRIVATE_ void prvEvent_initializeSCBVariables( evtSCB* pxSCB, pdEVENT_HANDLER_FUNCTION pFunction, portBASE_TYPE	ulEventKey, void* pvSubscriber)
+__PRIVATE_ void prvEvent_initializeSCBVariables( evtSCB* pxSCB,
+												 pdEVENT_HANDLER_FUNCTION pFunction,
+												 unsigned portBASE_TYPE	ulEventKey,
+												 void* pvSubscriber)
 {
 	/* This is used as an array index so must ensure it's not too large.  First
 	remove the privilege bit if one is present. */
@@ -462,11 +471,13 @@ __PRIVATE_ void prvEvent_initializeSCBVariables( evtSCB* pxSCB, pdEVENT_HANDLER_
 	listSET_LIST_NODE_OWNER((xListNode*) &( pxSCB->xSubscriberListNode ), pxSCB );
 }
 
-__PRIVATE_ void prvEvent_initializeECBVariables( evtECB* pxECB, unsigned portBASE_TYPE ulEventKey, unsigned portBASE_TYPE ulEventPriority)
+__PRIVATE_ void prvEvent_initializeECBVariables( evtECB* pxECB,
+												 unsigned portBASE_TYPE ulEventKey,
+												 unsigned portBASE_TYPE ulEventPriority)
 {
 	unsigned portBASE_TYPE ulProcessStamp = 0;
 
-	prxEvent_getProcessStamp(&ulProcessStamp);
+	prvEvent_getProcessStamp(&ulProcessStamp);
 
 	/* This is used as an array index so must ensure it's not too large.  First
 	remove the privilege bit if one is present. */
@@ -519,7 +530,10 @@ __PRIVATE_ void prvEvent_updateLifeTime (void)
 	evtECB* pxECB = NULL;
 	unsigned portBASE_TYPE ulProcessStamp = 0;
 
-	prxEvent_getProcessStamp(&ulProcessStamp);
+	/*update the process stamp*/
+	prvEvent_incrementProcessStamp();
+	/*get the new process stamp value*/
+	prvEvent_getProcessStamp(&ulProcessStamp);
 
 	while(ulPriority < EVENT_PRIORITY_LAST)
 	{
@@ -533,8 +547,6 @@ __PRIVATE_ void prvEvent_updateLifeTime (void)
 
 			if(((portBASE_TYPE)(ulProcessStamp - listGET_LIST_ITEM_VALUE( &( pxECB->xEventListNode )))) >= configEVENTOS_LIFE_TIME)
 			{
-				//EventOS_printLog((portCHAR*)"[update] Event: %d / Priority: %d to Priority: %d", pxEventListAux->pxEvent->xHeader.eEvent,pxEventListAux->pxEvent->xHeader.ePriority, (pxEventListAux->pxEvent->xHeader.ePriority - 1));
-
 				portDISABLE_INTERRUPTS();
 				{
 					/* Remove from lower priority list */
@@ -596,25 +608,6 @@ __PRIVATE_ void prvEvent_increaseEventPriority(evtECB* pxECB)
 	}
 }
 
-/*
-	EventOS dequeue event. This is the method that dequeue the events in the publish queue.
-
-    @param tx_EventNode* pxEventList
-    @return void
-    @author Amanda/Samuel
-    @date   20/10/2014
-
-*/
-__PRIVATE_ void prvEvent_decreaseEventPriority(evtECB* pxECB)
-{
-	if(!pxECB) return;
-	pxECB->ulEventPriority++;
-	if(pxECB->ulEventPriority >= EVENT_PRIORITY_LAST)
-	{
-		pxECB->ulEventPriority = (portBASE_TYPE) EVENT_PRIORITY_LAST-1;
-	}
-}
-
 __PRIVATE_ void prvEvent_terminateEvent( evtECB* pxECB )
 {
 	portDISABLE_INTERRUPTS();
@@ -635,19 +628,19 @@ __PRIVATE_ void prvEvent_deleteECB( evtECB* pxECB )
 }
 
 
-__PRIVATE_ signed portBASE_TYPE prvEvent_generateEventKey(void* pvEventOwner, portCHAR* pszEventName, unsigned portBASE_TYPE* ulEventKey)
+__PRIVATE_ void prvEvent_generateEventKey(void* pvEventOwner,
+										  portCHAR* szEventName,
+										  unsigned portBASE_TYPE* ulEventKey)
 {
 	unsigned portLONG hash = 5381;
-	portINTEGER c;
+	portCHAR c;
 
-	while ( (c = *pszEventName) )
+	while ( (c = *szEventName) )
 	{
 		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
-		pszEventName++;
+		szEventName++;
 	}
 
 	*ulEventKey = hash % configMAX_NUM_EVENTS;
-
-	return pdPASS;
 }

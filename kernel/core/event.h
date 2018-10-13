@@ -83,17 +83,29 @@ typedef enum enu_Priorities
 }tenuEventPriority;
 
 /* Defines the prototype to which event handler functions must conform. */
-typedef void (*pdEVENT_HANDLER_FUNCTION)( portBASE_TYPE, void*, void*, portBASE_TYPE );
+typedef void (*pdEVENT_HANDLER_FUNCTION)( unsigned portBASE_TYPE, void*, void*, unsigned portBASE_TYPE );
 
 /*********************************************************
     Public Operations
 *********************************************************/
 
 void 					vEvent_startScheduler( void );
-signed portBASE_TYPE 	xEvent_register (void* pvEventOwner, portCHAR* pszEventName, unsigned portBASE_TYPE* ulEventKey);
-signed portBASE_TYPE 	xEvent_subscribe (pdEVENT_HANDLER_FUNCTION pFunction, portBASE_TYPE	ulEventType, void* pvSubscriber);
-signed portBASE_TYPE 	xEvent_publish (void* pvPublisher, portBASE_TYPE ulEventType, portBASE_TYPE ulPriority, void* pvPayload, portBASE_TYPE ulPayloadSize);
-signed portBASE_TYPE  	xEvent_getVersion(portCHAR* pszKernelVersion);
+
+signed portBASE_TYPE 	xEvent_register (void* pvEventOwner,
+										 portCHAR* pszEventName,
+										 unsigned portBASE_TYPE* ulEventKey);
+
+signed portBASE_TYPE 	xEvent_subscribe (pdEVENT_HANDLER_FUNCTION pFunction,
+										  unsigned portBASE_TYPE ulEventKey,
+										  void* pvSubscriber);
+
+signed portBASE_TYPE 	xEvent_publish (void* pvPublisher,
+										unsigned portBASE_TYPE ulEventKey,
+										unsigned portBASE_TYPE ulPriority,
+										void* pvPayload,
+										unsigned portBASE_TYPE ulPayloadSize);
+
+signed portBASE_TYPE  	xEvent_getVersion(portCHAR* szKernelVersion);
 
 /*-----------------------------------------------------------
  * SCHEDULER INTERNALS AVAILABLE FOR PORTING PURPOSES
