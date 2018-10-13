@@ -59,7 +59,7 @@ void vList_insertHead( xList* pxList, xListNode* pxNewListNode )
 	makes the new list node the header node, but the last to be removed. */
 
 	//Points to the sentinel
-	pxIndex = pxList->pxIndex;
+	pxIndex = ( xListNode* ) &( pxList->xListSentinel);
 
 	pxNewListNode->pxNext = pxIndex->pxNext;
 	pxIndex->pxNext->pxPrevious = ( volatile xListNode*) pxNewListNode;
@@ -85,12 +85,11 @@ void vList_insert( xList* pxList, xListNode *pxNewListNode )
 	if( ulValueOfInsertion == portMAX_DELAY )
 	{
 		//point to the list tail, i.e., the last node
-		pxIterator = pxList->pxIndex;
+		pxIterator = ( xListNode* ) &( pxList->xListSentinel);
 	}
 	else
 	{
-		//TODO change the iteration to run from tail to head
-		for( pxIterator = ( xListNode* ) &( pxList->xListSentinel); pxIterator->pxPrevious->xNodeValue > ulValueOfInsertion; pxIterator = pxIterator->pxPrevious )
+		for( pxIterator = ( xListNode* ) &( pxList->xListSentinel); pxIterator->pxPrevious->xNodeValue <= ulValueOfInsertion; pxIterator = pxIterator->pxPrevious )
 		{
 			/* There is nothing to do here, we are just iterating to the
 			wanted insertion position. */
@@ -111,16 +110,14 @@ void vList_insert( xList* pxList, xListNode *pxNewListNode )
 
 void vList_remove( xListNode* pxNodeToRemove )
 {
-	xList* pxList;
+	/* The list item knows which list it is in.
+	 * Obtain the list from the list item. */
+	xList* pxList = ( xList*) pxNodeToRemove->pvContainer;
 
 	pxNodeToRemove->pxPrevious->pxNext = pxNodeToRemove->pxNext;
 	pxNodeToRemove->pxNext->pxPrevious = pxNodeToRemove->pxPrevious;
 
 	pxNodeToRemove->pvContainer = NULL;
-
-	/* The list item knows which list it is in.  Obtain the list from the list
-	item. */
-	pxList = ( xList*) pxNodeToRemove->pvContainer;
 	( pxList->xNumberOfNodes )--;
 }
 /*-----------------------------------------------------------*/

@@ -23,7 +23,7 @@
  */
 struct xLIST_NODE
 {
-	portBASE_TYPE xNodeValue;					/*< This value is used to sort the list in descending order. */
+	portTickType xNodeValue;					/*< This value is used to sort the list in descending order. */
 
 	volatile struct xLIST_NODE* pxNext;		/*< Pointer to the next xListItem in the list. */
 	volatile struct xLIST_NODE* pxPrevious;	/*< Pointer to the previous xListItem in the list. */
@@ -34,7 +34,7 @@ typedef struct xLIST_NODE xListNode;
 
 struct xLIST_SENTINEL
 {
-	portBASE_TYPE xNodeValue;					/*< This value is used to sort the list in descending order. */
+	portTickType xNodeValue;					/*< This value is used to sort the list in descending order. */
 	volatile struct xLIST_NODE* pxNext;		/*< Pointer to the next xListItem in the list. */
 	volatile struct xLIST_NODE* pxPrevious;	/*< Pointer to the previous xListItem in the list. */
 };

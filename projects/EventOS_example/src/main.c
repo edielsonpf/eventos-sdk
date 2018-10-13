@@ -16,9 +16,9 @@
 
 int main()
 {
-	Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES, LOG_SEVERITY_INFORMATIONAL, (char*)pxEvent_getVersion());
-
-	Application_new();
+	/* Check inside Application how events
+	 * are registered and managed*/
+	Application_initialize();
 
 	vEvent_startScheduler();
 	/*Should never reach here*/

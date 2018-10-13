@@ -10,7 +10,6 @@
 
 #include "EventOS.h"
 
-void Application_new(void);
-void Application_delete(void);
+void Application_initialize(void);
 
 #endif /* APPLICATION_H_ */

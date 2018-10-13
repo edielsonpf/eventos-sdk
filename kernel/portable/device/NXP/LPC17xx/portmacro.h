@@ -52,19 +52,8 @@ typedef unsigned portLONG portTickType;
 #define pdTRUE		( 1 )
 #define pdFALSE		( 0 )
 #define pdPASS		pdTRUE
+#define pdFAIL		pdFALSE
 
-
-/** @brief Time structure definitions for easy manipulate the data */
-typedef struct {
-	portULONG SEC; 		/*!< Seconds Register */
-	portULONG MIN; 		/*!< Minutes Register */
-	portULONG HOUR; 	/*!< Hours Register */
-	portULONG DOM;		/*!< Day of Month Register */
-	portULONG DOW; 		/*!< Day of Week Register */
-	portULONG DOY; 		/*!< Day of Year Register */
-	portULONG MONTH; 	/*!< Months Register */
-	portULONG YEAR; 	/*!< Years Register */
-} portRTC_TIME_Type;
 
 #define __HEADER_						volatile
 #define __PRIVATE_						static
@@ -72,18 +61,12 @@ typedef struct {
 /* Scheduler utilities. */
 extern void		vPortGenerateEvent( void );
 extern void		vPortEnterSleepMode( void );
-extern void     vPortStartRtc(void);
-extern void     vPortGetDateTime(portRTC_TIME_Type* ptagDateTime);
-extern void     vPortSetDateTime(portRTC_TIME_Type* ptagDateTime);
 extern void     vPortPrintLog(char* pcMessage);
 extern void     vPortDisableInterrupts(void);
 extern void     vPortEnableInterrupts(void);
 
 #define portGENERATE_EVENT()					vPortGenerateEvent()
 #define portSLEEP_MODE()						vPortEnterSleepMode()
-#define portSTART_RTC()							vPortStartRtc()
-#define portGET_DATE_TIME(pDateTime)			vPortGetDateTime(pDateTime)
-#define portSET_DATE_TIME(pDateTime)			vPortSetDateTime(pDateTime)
 #define portPRINT_LOG_CONSOLE(pMessage)         vPortPrintLog(pMessage)
 #define portDISABLE_INTERRUPTS()				vPortDisableInterrupts()
 #define portENABLE_INTERRUPTS()					vPortEnableInterrupts()

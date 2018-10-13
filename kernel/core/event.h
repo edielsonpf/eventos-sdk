@@ -29,10 +29,8 @@ extern "C" {
  * MACROS AND DEFINITIONS
  *----------------------------------------------------------*/
 
-#define evnKERNEL_VERSION_NUMBER "V1.0.1"
-
 /**
- * event. h
+ * event.h
  *
  * Type by which event handlers are referenced.  For example, a call to Event_subscribe
  * returns (via a pointer parameter) an pEventHandle variable that can then
@@ -40,37 +38,6 @@ extern "C" {
  *
  */
 typedef void* pvEventHandle;
-
-typedef enum enu_Events
-{
-	/*Kernel events*/
-	EVENT_KERNEL_SLEEP = 0,
-	EVENT_KERNEL_WAKEUP,
-
-	/*
-	 * !!! I M P O R T A N T !!!
-	 * Kernel events can be only published by the kernel. If you are not
-	 * the EventOS class, just use it for subscription!
-	 */
-
-	/*System events*/
-	EVENT_SYS_TICK = 10,
-	EVENT_SYS_USB,
-	EVENT_SYS_ETHERNET,
-	EVENT_SYS_ERROR,
-	EVENT_SYS_WARNING,
-	EVENT_SYS_SYSTICK,
-	EVENT_SYS_UART,
-
-	/*Application events*/
-	EVENT_APP_LIGHT,
-	EVENT_APP_TEMPERATURE,
-
-	EVENT_TYPE_UNKNOWN,
-	/*Must be the last one*/
-	EVENT_TYPE_LAST
-}tenuEventType;
-
 
 typedef enum enu_Priorities
 {
@@ -83,16 +50,28 @@ typedef enum enu_Priorities
 }tenuEventPriority;
 
 /* Defines the prototype to which event handler functions must conform. */
-typedef void (*pdEVENT_HANDLER_FUNCTION)( portBASE_TYPE, void*, void*, portBASE_TYPE );
+typedef void (*pdEVENT_HANDLER_FUNCTION)( unsigned portBASE_TYPE, void*, void*, unsigned portBASE_TYPE );
 
 /*********************************************************
     Public Operations
 *********************************************************/
 
 void 					vEvent_startScheduler( void );
-signed portBASE_TYPE 	xEvent_subscribe (pdEVENT_HANDLER_FUNCTION pFunction, portBASE_TYPE	ulEventType, void* pvSubscriber);
-signed portBASE_TYPE 	xEvent_publish (portBASE_TYPE ulEventType, portBASE_TYPE ulPriority, void* pvPayload, portBASE_TYPE ulPayloadSize);
-portCHAR*  				pxEvent_getVersion(void);
+
+signed portBASE_TYPE 	xEvent_register (void* pvEventOwner,
+										 portCHAR* pszEventName,
+										 unsigned portBASE_TYPE* ulEventKey);
+
+signed portBASE_TYPE 	xEvent_subscribe (pdEVENT_HANDLER_FUNCTION pFunction,
+										  unsigned portBASE_TYPE ulEventKey,
+										  void* pvSubscriber);
+
+signed portBASE_TYPE 	xEvent_publish (void* pvPublisher,
+										unsigned portBASE_TYPE ulEventKey,
+										unsigned portBASE_TYPE ulPriority,
+										void* pvPayload,
+										unsigned portBASE_TYPE ulPayloadSize);
+
 
 /*-----------------------------------------------------------
  * SCHEDULER INTERNALS AVAILABLE FOR PORTING PURPOSES
