@@ -158,7 +158,7 @@ __PRIVATE_ void prvEvent_initializeECBVariables( evtECB* pxECB,
 __PRIVATE_ void prvEvent_incrementProcessStamp( void );
 __PRIVATE_ void prvEvent_getProcessStamp( portTickType*  pulProcessStamp);
 __PRIVATE_ void prvEvent_updateLifeTime (void);
-__PRIVATE_ void prvEvent_getNextEvent(evtECB* pxECB);
+__PRIVATE_ evtECB* prvEvent_getNextEvent(void);
 __PRIVATE_ void prvEvent_increaseEventPriority(evtECB* pxECB);
 __PRIVATE_ void prvEvent_terminateEvent( evtECB* pxECB );
 __PRIVATE_ void prvEvent_deleteECB( evtECB* pxECB );
@@ -180,12 +180,6 @@ __PRIVATE_ void prvEvent_generateEventKey(void* pvEventOwner,
 */
 void vEvent_startScheduler( void )
 {
-//	/* Start RTC */
-//	portSTART_RTC();
-
-	/* Initialize the event administration before scheduler start */
-	prvEvent_initializeEventAdmin();
-
 	/* Setting up the system for sleep mode in the specific. */
 	if( xPortStartScheduler() )
 	{
@@ -209,59 +203,89 @@ void vEvent_startScheduler( void )
     @date   15/09/2017
 */
 signed portBASE_TYPE xEvent_register (	void* pvEventOwner,
-										portCHAR* pszEventName,
+										portCHAR* szEventName,
 										unsigned portBASE_TYPE* pulEventKey)
 {
-	if(pszEventName == NULL) return pdFAIL;
+	if(szEventName == NULL) return pdFAIL;
 	if(pvEventOwner == NULL) return pdFAIL;
-	if(strlen(pszEventName) >= configMAX_EVENT_NAME_LEN) return pdFAIL;
+	if(strlen(szEventName) >= configMAX_EVENT_NAME_LEN) return pdFAIL;
 
 	signed portBASE_TYPE xReturn = pdTRUE;
 	unsigned portBASE_TYPE ulNewKey = 0;
+	portBASE_TYPE x = 0;
 
-	/**
-	 * This method generates a new event key based on
-	 * the event name. For future implementation,
-	 * the pvOwner can be used to make the key
-	 * more specific or even create any security key.
-	 */
-	prvEvent_generateEventKey(pvEventOwner, pszEventName, &ulNewKey);
 
-	/*
-	 * We have to check if the event administration is already in use
-	 * for this specific key. This is important to keep the key
-	 * unique in the system.
-	 * */
-	if(prvEvent_checkEventKey(ulNewKey) == pdFALSE)
+	portDISABLE_INTERRUPTS();
 	{
-		portDISABLE_INTERRUPTS();
+		evt_ulCurrentNumberOfRegEvents++;
+
+		if(evt_ulCurrentNumberOfRegEvents == (portBASE_TYPE) 1)
 		{
-			pxEventAdminList[ulNewKey].bInUse = pdTRUE;
-			pxEventAdminList[ulNewKey].ulEventKey = ulNewKey;
-			strncpy(pxEventAdminList[ulNewKey].szEventName,
-					pszEventName,
-					configMAX_EVENT_NAME_LEN);
-			pxEventAdminList[ulNewKey].pvEventOwner = pvEventOwner;
-			pxEventAdminList[ulNewKey].ulCurrentNumberOfSubscribers = 0;
-
-			evt_ulCurrentNumberOfRegEvents++;
-
-			/*
-			 * return the new event key to the user.
+			/* This is the first event to be registered so do the preliminary
+			   required initialization. We will not recover if this call
+			   fails, but we will report the failure.
 			 */
-			*pulEventKey = ulNewKey;
-		}
-		portENABLE_INTERRUPTS();
-	}
-	else
-	{
-		/* For now, we consider just one event admin per key.
-		 * Further version can use a linked list of event
-		 * admin per key. */
+			prvEvent_initializeEventAdmin();
 
-		*pulEventKey = 0;
-		xReturn = pdFAIL;
+		}
+
+		/**
+		 * This method generates a new event key based on
+		 * the event name. For future implementation,
+		 * the pvOwner can be used to make the key
+		 * more specific or even create any security key.
+		 */
+		prvEvent_generateEventKey(pvEventOwner, szEventName, &ulNewKey);
+
+		/*
+		 * We have to check if the event administration is already in use
+		 * for this specific key. This is important to keep the key
+		 * unique in the system.
+		 * */
+		if(prvEvent_checkEventKey(ulNewKey) == pdFALSE)
+		{
+
+				pxEventAdminList[ulNewKey].bInUse = pdTRUE;
+				pxEventAdminList[ulNewKey].ulEventKey = ulNewKey;
+
+				/* Store the task name in the TCB. */
+				for( x = ( portBASE_TYPE ) 0; x < ( portBASE_TYPE ) configMAX_EVENT_NAME_LEN; x++ )
+				{
+					pxEventAdminList[ulNewKey].szEventName[x] = szEventName[x];
+
+					/* Don't copy all configMAX_EVENT_NAME_LEN if the string is shorter than
+					configMAX_EVENT_NAME_LEN characters just in case the memory after the
+					string is not accessible (extremely unlikely). */
+
+					if( szEventName[ x ] == 0x00 )
+					{
+						break;
+					}
+				}
+
+				/* Ensure the name string is terminated in the case that the string length
+				was greater or equal to configMAX_EVENT_NAME_LEN. */
+
+				pxEventAdminList[ulNewKey].szEventName[ configMAX_EVENT_NAME_LEN - 1 ] = '\0';
+				pxEventAdminList[ulNewKey].pvEventOwner = pvEventOwner;
+				pxEventAdminList[ulNewKey].ulCurrentNumberOfSubscribers = 0;
+
+				/*
+				 * return the new event key to the user.
+				 */
+				*pulEventKey = ulNewKey;
+		}
+		else
+		{
+			/* For now, we consider just one event admin per key.
+			 * Further version can use a linked list of event
+			 * admin per key. */
+
+			*pulEventKey = 0;
+			xReturn = pdFAIL;
+		}
 	}
+	portENABLE_INTERRUPTS();
 
 	return xReturn;
 }
@@ -280,8 +304,9 @@ signed portBASE_TYPE xEvent_subscribe (	pdEVENT_HANDLER_FUNCTION pFunction,
 										unsigned portBASE_TYPE ulEventKey,
 										void* pvSubscriber)
 {
-	if(ulEventKey >= (portBASE_TYPE)EVENT_TYPE_LAST) return pdFAIL;
-	if(!pFunction) return pdFAIL;
+	if(pFunction == NULL) 		return pdFAIL;
+	if(pvSubscriber == NULL) 	return pdFAIL;
+	if(evt_ulCurrentNumberOfRegEvents == 0) return pdFAIL;
 
 	signed portBASE_TYPE xReturn = pdTRUE;
 
@@ -308,8 +333,8 @@ signed portBASE_TYPE xEvent_subscribe (	pdEVENT_HANDLER_FUNCTION pFunction,
 			}
 			portENABLE_INTERRUPTS();
 		}
-		//EventOS_printLog((portCHAR*)"[subscribe] Event: %d", eEvent);
 	}
+
 	return xReturn;
 }
 
@@ -328,7 +353,6 @@ signed portBASE_TYPE xEvent_publish (void* pvPublisher,
 									 void* pvPayload,
 									 unsigned portBASE_TYPE ulPayloadSize)
 {
-	if (ulEventKey >= EVENT_TYPE_LAST) return pdFAIL;
 	if (ulPriority >= EVENT_PRIORITY_LAST) return pdFAIL;
 
 	portBASE_TYPE xStatus = pdPASS;
@@ -338,12 +362,31 @@ signed portBASE_TYPE xEvent_publish (void* pvPublisher,
 		evtECB* pxNewEvent = (evtECB*)pvPortMalloc(sizeof(evtECB));
 		if(pxNewEvent)
 		{
-			prvEvent_initializeECBVariables(pxNewEvent, ulEventKey, ulPriority);
+			prvEvent_initializeECBVariables(pxNewEvent,
+											ulEventKey,
+											ulPriority);
+
+			/*
+			 * Initialize the payload container in the event block
+			 * */
+			if(ulPayloadSize > 0)
+			{
+				pxNewEvent->pvPayload = pvPortMalloc(ulPayloadSize);
+				if(pxNewEvent->pvPayload)
+				{
+					memcpy(pxNewEvent->pvPayload, pvPayload, ulPayloadSize);
+					pxNewEvent->ulPayloadSize = ulPayloadSize;
+				}
+			}
+			else
+			{
+				pxNewEvent->pvPayload = NULL;
+				pxNewEvent->ulPayloadSize = 0;
+			}
 
 			portDISABLE_INTERRUPTS();
 			{
 				prvEvent_addEventToList( pxNewEvent );
-				//EventOS_printLog((portCHAR*)"[publish] Event: %d / Priority: %d", pxNew->pxEvent->xHeader.eEvent, pxNew->pxEvent->xHeader.ePriority);
 			}
 			portENABLE_INTERRUPTS();
 			portGENERATE_EVENT();
@@ -375,11 +418,9 @@ void vEvent_processEvents (void)
 {
 	static evtSCB* pxSCB;
 
-	prvEvent_getNextEvent(pxCurrentECB);
+	pxCurrentECB = prvEvent_getNextEvent();
 	while (pxCurrentECB)
 	{
-		//EventOS_printLog((portCHAR*)"[process] Event: %d / Priority: %d", pEvent->xHeader.eEvent,pEvent->xHeader.ePriority);
-
 		/*take the first subscriber from the sub list related to the event*/
 		listGET_OWNER_OF_NEXT_NODE( pxSCB, ( xList* ) pxCurrentECB->pxSubscriberList );
 		while(pxSCB)
@@ -391,28 +432,12 @@ void vEvent_processEvents (void)
 			/*take the next subscriber from the sub list related to the event*/
 			listGET_OWNER_OF_NEXT_NODE( pxSCB, ( xList* ) pxCurrentECB->pxSubscriberList );
 		}
+
 		/*discard event after processed by all subscribers*/
 		prvEvent_terminateEvent(pxCurrentECB);
 		prvEvent_updateLifeTime();
-		prvEvent_getNextEvent(pxCurrentECB);
+		pxCurrentECB = prvEvent_getNextEvent();
 	}
-}
-
-/**
-	Get event scheduler version
-
-    @param void
-    @return pointer to the version string
-    @author edielsonpf
-    @date   19/09/2017
-*/
-signed portBASE_TYPE  xEvent_getVersion(portCHAR* szKernelVersion)
-{
-	if(szKernelVersion == NULL) return pdFAIL;
-
-	szKernelVersion = (portCHAR*) evnKERNEL_VERSION_NUMBER;
-
-	return pdPASS;
 }
 
 //======================================================================
@@ -454,12 +479,6 @@ __PRIVATE_ void prvEvent_initializeSCBVariables( evtSCB* pxSCB,
 												 unsigned portBASE_TYPE	ulEventKey,
 												 void* pvSubscriber)
 {
-	/* This is used as an array index so must ensure it's not too large.  First
-	remove the privilege bit if one is present. */
-	if( ulEventKey >= EVENT_TYPE_LAST )
-	{
-		ulEventKey = EVENT_TYPE_LAST - 1;
-	}
 	pxSCB->ulEventKey = ulEventKey;
 	pxSCB->pdEventHandlerFunction = pFunction;
 	pxSCB->pvHandler = pvSubscriber;
@@ -478,20 +497,6 @@ __PRIVATE_ void prvEvent_initializeECBVariables( evtECB* pxECB,
 	unsigned portBASE_TYPE ulProcessStamp = 0;
 
 	prvEvent_getProcessStamp(&ulProcessStamp);
-
-	/* This is used as an array index so must ensure it's not too large.  First
-	remove the privilege bit if one is present. */
-	if( ulEventKey >= EVENT_TYPE_LAST )
-	{
-		ulEventKey = EVENT_TYPE_LAST - 1;
-	}
-
-	/* This is used as an array index so must ensure it's not too large.  First
-	remove the privilege bit if one is present. */
-	if( ulEventPriority >= EVENT_PRIORITY_LAST )
-	{
-		ulEventKey = EVENT_PRIORITY_LAST - 1;
-	}
 
 	pxECB->ulEventKey = ulEventKey;
 	pxECB->ulEventPriority = ulEventPriority;
@@ -526,7 +531,7 @@ __PRIVATE_ void prvEvent_incrementProcessStamp( void )
 */
 __PRIVATE_ void prvEvent_updateLifeTime (void)
 {
-	portBASE_TYPE ulPriority = EVENT_PRIORITY_HIGH-1;
+	portBASE_TYPE ulPriority = EVENT_PRIORITY_HIGH;
 	evtECB* pxECB = NULL;
 	unsigned portBASE_TYPE ulProcessStamp = 0;
 
@@ -576,10 +581,10 @@ __PRIVATE_ void prvEvent_updateLifeTime (void)
     @date   20/10/2014
 
 */
-__PRIVATE_ void prvEvent_getNextEvent(evtECB* pxECB)
+__PRIVATE_ evtECB* prvEvent_getNextEvent(void)
 {
 	portBASE_TYPE xPriority = EVENT_PRIORITY_HIGH;
-	pxECB = NULL;
+	evtECB* pxECB = NULL;
 
 	/*check the event list with highest priority that is not empty*/
 	while ((xPriority < EVENT_PRIORITY_LAST) && (pxECB == NULL))
@@ -587,6 +592,8 @@ __PRIVATE_ void prvEvent_getNextEvent(evtECB* pxECB)
 		pxECB = (evtECB*) listGET_OWNER_OF_HEAD_ENTRY(( xList* ) &( pxEventsLists[ xPriority ] ) );
 		xPriority++;
 	}
+
+	return pxECB;
 }
 
 /*

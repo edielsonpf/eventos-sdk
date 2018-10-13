@@ -16,12 +16,6 @@
 
 int main()
 {
-	portCHAR szKernel_Version[100];
-
-	xEvent_getVersion(szKernel_Version);
-
-	Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES, LOG_SEVERITY_INFORMATIONAL, szKernel_Version);
-
 	/* Check inside Application how events
 	 * are registered and managed*/
 	Application_initialize();

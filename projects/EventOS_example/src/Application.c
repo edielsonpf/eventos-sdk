@@ -58,7 +58,7 @@ static void Application_receiveLedEvent(unsigned portBASE_TYPE EventKey,
 void Application_initialize(void)
 {
 
-	void* App_pvHandler = &App_ID; /*Used just to identify the owner of the events in this application*/
+	App_pvHandler = &App_ID; /*Used just to identify the owner of the events in this application*/
 
 	Application_initSysTick();
 	Application_initLight();
@@ -154,7 +154,7 @@ static void Application_receiveLightEvent(unsigned portBASE_TYPE EventKey,
 
 		Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES,
 				  LOG_SEVERITY_INFORMATIONAL,
-				  "[app] Light: %ul)",
+				  "[app] Light: %ul",
 				  ulLight);
 	}
 }
@@ -174,11 +174,11 @@ static void Application_receiveSystickEvent(unsigned portBASE_TYPE EventKey,
 		unsigned long ulTicks = *(unsigned long*) (pvPayload);
 		unsigned long ulLight = 0;
 
-		if(ulTicks % 1000 == 0)
+		if(ulTicks % 100 == 0)
 		{
 			Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES,
 					LOG_SEVERITY_INFORMATIONAL,
-					"[app] Publishing new event: Led");
+					"[app] Ticks %ul. Publishing new event: Led", ulTicks);
 
 			/*Publish the new light value for respective subscribers*/
 			xEvent_publish(App_pvHandler,
@@ -187,11 +187,11 @@ static void Application_receiveSystickEvent(unsigned portBASE_TYPE EventKey,
 						   NULL,
 						   0);
 		}
-		if(ulTicks % 5000 == 0)
+		if(ulTicks % 500 == 0)
 		{
 			Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES,
 					LOG_SEVERITY_INFORMATIONAL,
-					"[app] Publishing new event: Light");
+					"[app] Ticks %ul. Publishing new event: Light", ulTicks);
 
 			/*Read a new light value from sensor*/
 			ulLight = light_read();
