@@ -35,16 +35,102 @@
 /* Unity includes. */
 #include "unity.h"
 
+/* Support includes */
+#include "board.h"
+
 /*********************************************************
     private definition.
 *********************************************************/
+static unsigned long TEST_main_key = 0;
+static unsigned long TEST_main_id = 0x02;
+static void* TEST_main_pvHandler = NULL;
+static unsigned long TEST_system_initialized = 0;
 
+/*********************************************************
+    private prototypes.
+*********************************************************/
+static void vTest_StartTestEvent( unsigned portBASE_TYPE EventKey,
+		  	  	  	  	  	   	  void* pvHandler,
+								  void* pvPayload,
+								  unsigned portBASE_TYPE ulPayloadSize);
+
+
+void vTest_SysTickHandler(void); /* Changed at cr_startup_lpc17.c*/
+/*********************************************************
+    private prototypes.
+*********************************************************/
+
+/**
+ * @brief Performs board and logging initializations, then starts the OS.
+ *
+ * Functions that require the OS to be running
+ * are handled in vTest_StartTestEvent().
+ *
+ * @sa vTest_StartTestEvent()
+ *
+ * @return This function should not return.
+ */
 int main()
 {
-	TEST_RUNNER_RunTests();
+	TEST_main_pvHandler = &TEST_main_id;
+
+	Board_initialize();
+
+	xEvent_register(TEST_main_pvHandler,		/* Handler of event owner.*/
+					"EVENT_START_TESTS",    	/* Text name for the event. Used to generate event key*/
+					&TEST_main_key); 			/* Pointer to store the generated event key */
+
+	xEvent_subscribe(vTest_StartTestEvent, 		/* Pointer to the function that handles the event*/
+					 TEST_main_key, 			/* Event key on which you want to subscribe*/
+					 TEST_main_pvHandler);		/* Subscriber handler.*/
 
 	vEvent_startScheduler();
 
 	/*Should never reach here*/
 	return 0;
 }
+
+
+/**
+ * @brief Execute the tests.
+ *
+ *
+ * @return This function returns  void.
+ */
+static void vTest_StartTestEvent( unsigned portBASE_TYPE EventKey,
+								  void* pvHandler,
+								  void* pvPayload,
+								  unsigned portBASE_TYPE ulPayloadSize)
+{
+	if(EventKey != TEST_main_key) return; /*security check*/
+	if(pvHandler == NULL) return;
+	if(pvHandler != TEST_main_pvHandler) return;
+
+	/* Execute the tests*/
+	TEST_RUNNER_RunTests();
+}
+
+
+/**
+ * @brief Handles systick interrupts. Used to publish a start test event.
+ *
+ * This function is used to guarantee that the OS is running and
+ * has been waked up by an interruption.
+ *
+ * @return This function returns void.
+ */
+void vTest_SysTickHandler(void)
+{
+	if(TEST_system_initialized == 0)
+	{
+		/*We are starting the tests once*/
+		TEST_system_initialized = 1;
+
+		xEvent_publish(TEST_main_pvHandler, 		/* Pointer to the publisher */
+					   TEST_main_key, 				/* Event key to be published */
+					   EVENT_PRIORITY_HIGH,			/* Event priority */
+					   NULL,						/* No payload*/
+					   0); 							/* Payload size = 0 */
+	}
+}
+

@@ -25,31 +25,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>Test/LPCXPRESSO/cr_startup_lpc17.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/tests/nxp/LPCXPRESSO/NXPLPC1769-OM13085/cr_startup_lpc17.c</locationURI>
-		</link>
-		<link>
-			<name>Test/Src/main.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/tests/nxp/src/main.c</locationURI>
-		</link>
-		<link>
-			<name>Test/Src/eventos_test_framework.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/tests/common/framework/eventos_test_framework.c</locationURI>
-		</link>
-		<link>
-			<name>Test/Src/eventos_test_runner.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/tests/common/test_runner/eventos_test_runner.c</locationURI>
-		</link>
-		<link>
-			<name>Test/Src/eventos_test_event.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/tests/common/eventos_event/eventos_test_event.c</locationURI>
-		</link>
-		<link>
 			<name>Drivers/CMSIS/core_cm3.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/drivers/cmsis/source/core_cm3.c</locationURI>
@@ -85,9 +60,9 @@
 			<locationURI>PARENT-5-PROJECT_LOC/drivers/LPC17xx_HAL_Drivers/src/lpc17xx_uart.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/CMSIS/LPC17xx/system_LPC17xx.c</name>
+			<name>Drivers/LPC17xx_HAL_Drivers/lpc17xx_timer.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/drivers/cmsis/device/NXP/LPC17xx/source/system_LPC17xx.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/drivers/LPC17xx_HAL_Drivers/src/lpc17xx_timer.c</locationURI>
 		</link>
 		<link>
 			<name>Lib/EventOS/event.c</name>
@@ -98,11 +73,6 @@
 			<name>Lib/EventOS/list.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/lib/EventOS/list.c</locationURI>
-		</link>
-		<link>
-			<name>Lib/EventOS/Port/LPC17xx/port.c</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/lib/EventOS/portable/device/NXP/LPC17xx/port.c</locationURI>
 		</link>
 		<link>
 			<name>Lib/Log/eventos_log.c</name>
@@ -118,6 +88,46 @@
 			<name>Lib/Unity/unity_fixture.c</name>
 			<type>1</type>
 			<locationURI>PARENT-5-PROJECT_LOC/lib/third_party/unity/extras/fixture/src/unity_fixture.c</locationURI>
+		</link>
+		<link>
+			<name>Test/LPCXPRESSO/cr_startup_lpc17.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/tests/nxp/LPCXPRESSO/NXPLPC1769-OM13085/cr_startup_lpc17.c</locationURI>
+		</link>
+		<link>
+			<name>Test/Src/eventos_test_event.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/tests/common/eventos_event/eventos_test_event.c</locationURI>
+		</link>
+		<link>
+			<name>Test/Src/eventos_test_framework.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/tests/common/framework/eventos_test_framework.c</locationURI>
+		</link>
+		<link>
+			<name>Test/Src/eventos_test_runner.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/tests/common/test_runner/eventos_test_runner.c</locationURI>
+		</link>
+		<link>
+			<name>Test/Src/main.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/tests/nxp/src/main.c</locationURI>
+		</link>
+		<link>
+			<name>Test/Src/board.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/tests/nxp/src/board.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/CMSIS/LPC17xx/system_LPC17xx.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/drivers/cmsis/device/NXP/LPC17xx/source/system_LPC17xx.c</locationURI>
+		</link>
+		<link>
+			<name>Lib/EventOS/Port/LPC17xx/port.c</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/lib/EventOS/portable/device/NXP/LPC17xx/port.c</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
