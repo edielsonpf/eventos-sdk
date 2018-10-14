@@ -39,8 +39,8 @@
 									<listOptionValue builtIn="false" value="../../../../../../drivers/bsp/EA-XPR-021"/>
 									<listOptionValue builtIn="false" value="../../../../../../drivers/cmsis/device/NXP/LPC17xx/include"/>
 									<listOptionValue builtIn="false" value="../../../../../../lib/EventOS/portable/device/NXP/LPC17xx"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/Log"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/EventOS/core"/>
+									<listOptionValue builtIn="false" value="../../../../../../lib/include"/>
+									<listOptionValue builtIn="false" value="../../../../../../lib/include/private"/>
 								</option>
 								<inputType id="com.crt.advproject.compiler.input.734343890" superClass="com.crt.advproject.compiler.input"/>
 							</tool>
@@ -120,8 +120,8 @@
 									<listOptionValue builtIn="false" value="../../../../../../drivers/bsp/EA-XPR-021"/>
 									<listOptionValue builtIn="false" value="../../../../../../drivers/cmsis/device/NXP/LPC17xx/include"/>
 									<listOptionValue builtIn="false" value="../../../../../../lib/EventOS/portable/device/NXP/LPC17xx"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/Log"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/EventOS/core"/>
+									<listOptionValue builtIn="false" value="../../../../../../lib/include"/>
+									<listOptionValue builtIn="false" value="../../../../../../lib/include/private"/>
 								</option>
 								<inputType id="com.crt.advproject.compiler.input.262297878" superClass="com.crt.advproject.compiler.input"/>
 							</tool>
@@ -146,8 +146,8 @@
 								</option>
 								<option id="com.crt.advproject.link.gcc.hdrlib.1018349187" name="Library" superClass="com.crt.advproject.link.gcc.hdrlib" value="com.crt.advproject.gcc.link.hdrlib.codered.semihost" valueType="enumerated"/>
 								<option id="com.crt.advproject.link.gcc.multicore.slave.271511183" name="Multicore configuration" superClass="com.crt.advproject.link.gcc.multicore.slave"/>
-								<option id="gnu.c.link.option.libs.110698865" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs"/>
-								<option id="gnu.c.link.option.paths.2126570222" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths"/>
+								<option id="gnu.c.link.option.libs.110698865" name="Libraries (-l)" superClass="gnu.c.link.option.libs"/>
+								<option id="gnu.c.link.option.paths.2126570222" name="Library search path (-L)" superClass="gnu.c.link.option.paths"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.829770724" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>

@@ -1,5 +1,6 @@
 /*
-    EventOS V1.0 - Copyright (C) 2014 Edielson Prevato Frigieri.
+    EventOS V1.0.1
+    Copyright (C) 2014 Edielson Prevato Frigieri. All Rights Reserved.
 
        This file is part of the EventOS distribution.
 
@@ -13,8 +14,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 
-
-*/
+ */
 
 /*-----------------------------------------------------------
  * Implementation of functions defined in port.h for the ARM CM3 port.

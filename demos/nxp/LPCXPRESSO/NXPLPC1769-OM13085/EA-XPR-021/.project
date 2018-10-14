@@ -80,19 +80,19 @@
 			<locationURI>PARENT-5-PROJECT_LOC/drivers/LPC17xx_HAL_Drivers/src/lpc17xx_uart.c</locationURI>
 		</link>
 		<link>
-			<name>Lib/EventOS/Core/event.c</name>
+			<name>Lib/EventOS/event.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/lib/EventOS/core/event.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/lib/EventOS/event.c</locationURI>
 		</link>
 		<link>
-			<name>Lib/EventOS/Core/list.c</name>
+			<name>Lib/EventOS/list.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/lib/EventOS/core/list.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/lib/EventOS/list.c</locationURI>
 		</link>
 		<link>
-			<name>Lib/Log/Log.c</name>
+			<name>Lib/Log/eventos_log.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/lib/Log/Log.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/lib/Log/eventos_log.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/EA-XPR-021/acc.c</name>
