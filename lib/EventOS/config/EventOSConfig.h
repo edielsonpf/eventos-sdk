@@ -26,9 +26,6 @@
  *
  *----------------------------------------------------------*/
 
-#define  EVENTOS_LOG_PACKET_SIZE				100   /* Max char in log */
-//#define  EVENTOS_DISABLE_LOG
-
 #define configEVENTOS_LIFE_TIME						( 3 )
 
 

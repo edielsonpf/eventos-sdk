@@ -79,9 +79,6 @@ extern void     vPortEnableInterrupts(void);
 #define vPortFree( pvMemory ) free( pvMemory );
 
 ///* Critical section management. */
-//
-///* Defines the prototype to which event handler functions must conform. */
-//typedef void (*pdEventHandlerFunction)(void* hHandle, portEVENT_EVENT_Type* ptagEvent);
 
 
 #ifdef __cplusplus

@@ -15,31 +15,34 @@
 
  */
 
-#ifndef EVENTOSCONFIG_H_
-#define EVENTOSCONFIG_H_
-
 /*-----------------------------------------------------------
- * Application specific definitions.
- *
- * These definitions should be adjusted for your particular hardware and
- * application requirements.
- *
+ * Portable layer API.  Each function must be defined for each port.
  *----------------------------------------------------------*/
 
-#define configEVENTOS_LIFE_TIME						( 3 )
+#ifndef PORTABLE_H
+#define PORTABLE_H
 
+#include "portmacro.h"
 
-/* Use the system definition, if there is one */
-#ifdef __NVIC_PRIO_BITS
-	#define configPRIO_BITS       __NVIC_PRIO_BITS
-#else
-	#define configPRIO_BITS       5        /* 32 priority levels */
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-/* The lowest priority. */
-#define configKERNEL_INTERRUPT_PRIORITY 	( 31 << (8 - configPRIO_BITS) )
-#define configMAX_EVENT_NAME_LEN			( 25 )
+/*
+ * Map to the memory management routines required for the port.
+ */
+void *pvPortMalloc( size_t xSize );
+void vPortFree( void *pv );
 
-#define configMAX_NUM_EVENTS				( 256 )
+/*
+ * Setup the hardware ready for the scheduler to take control.  Must setup the system to sleep mode
+ * and the control must be reached by a PendSV interruption.
+ */
+portBASE_TYPE 	xPortStartScheduler( void );
 
-#endif /* EVENTOSCONFIG_H_ */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* PORTABLE_H */
+
