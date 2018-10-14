@@ -25,24 +25,24 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>Application/LPCXPRESSO/cr_startup_lpc17.c</name>
+			<name>Demo/LPCXPRESSO/cr_startup_lpc17.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/projects/EventOS_example/LPCXPRESSO/NXPLPC1769-OM13085/cr_startup_lpc17.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/demos/nxp/LPCXPRESSO/NXPLPC1769-OM13085/cr_startup_lpc17.c</locationURI>
 		</link>
 		<link>
-			<name>Application/MultiEvents/Application.c</name>
+			<name>Demo/MultiEvents/application.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/projects/EventOS_example/src/Application.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/demos/nxp/src/application.c</locationURI>
 		</link>
 		<link>
-			<name>Application/MultiEvents/leds.c</name>
+			<name>Demo/MultiEvents/leds.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/projects/EventOS_example/src/leds.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/demos/nxp/src/leds.c</locationURI>
 		</link>
 		<link>
-			<name>Application/MultiEvents/main.c</name>
+			<name>Demo/MultiEvents/main.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/projects/EventOS_example/src/main.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/demos/nxp/src/main.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/CMSIS/core_cm3.c</name>
@@ -80,19 +80,19 @@
 			<locationURI>PARENT-5-PROJECT_LOC/drivers/LPC17xx_HAL_Drivers/src/lpc17xx_uart.c</locationURI>
 		</link>
 		<link>
-			<name>Kernel/Core/event.c</name>
+			<name>Lib/EventOS/Core/event.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/kernel/core/event.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/lib/EventOS/core/event.c</locationURI>
 		</link>
 		<link>
-			<name>Kernel/Core/list.c</name>
+			<name>Lib/EventOS/Core/list.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/kernel/core/list.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/lib/EventOS/core/list.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/Log/Log.c</name>
+			<name>Lib/Log/Log.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/middlewares/Log/Log.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/lib/Log/Log.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/EA-XPR-021/acc.c</name>
@@ -110,9 +110,9 @@
 			<locationURI>PARENT-5-PROJECT_LOC/drivers/cmsis/device/NXP/LPC17xx/source/system_LPC17xx.c</locationURI>
 		</link>
 		<link>
-			<name>Kernel/Port/LPC17xx/port.c</name>
+			<name>Lib/EventOS/Port/LPC17xx/port.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/kernel/portable/device/NXP/LPC17xx/port.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/lib/EventOS/portable/device/NXP/LPC17xx/port.c</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

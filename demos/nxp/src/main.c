@@ -11,7 +11,7 @@
 #include "event.h"
 
 
-#include "Application.h"
+#include "application.h"
 #include "Log.h"
 
 int main()

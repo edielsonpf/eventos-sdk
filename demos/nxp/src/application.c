@@ -5,7 +5,7 @@
 
 #include "event.h"
 
-#include "Application.h"
+#include "application.h"
 #include "Log.h"
 
 #include "leds.h"
@@ -174,7 +174,7 @@ static void Application_receiveSystickEvent(unsigned portBASE_TYPE EventKey,
 		unsigned long ulTicks = *(unsigned long*) (pvPayload);
 		unsigned long ulLight = 0;
 
-		if(ulTicks % 100 == 0)
+		if(ulTicks % 1000 == 0)
 		{
 			Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES,
 					LOG_SEVERITY_INFORMATIONAL,
