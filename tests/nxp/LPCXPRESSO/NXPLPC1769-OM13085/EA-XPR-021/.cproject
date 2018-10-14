@@ -45,7 +45,7 @@
 									<listOptionValue builtIn="false" value="../../../../../../lib/third_party/unity/src"/>
 									<listOptionValue builtIn="false" value="../../../../../../lib/third_party/unity/extras/fixture/src"/>
 								</option>
-								<option id="gnu.c.compiler.option.include.files.1662452505" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" valueType="includeFiles"/>
+								<option id="gnu.c.compiler.option.include.files.1662452505" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files"/>
 								<inputType id="com.crt.advproject.compiler.input.734343890" superClass="com.crt.advproject.compiler.input"/>
 							</tool>
 							<tool command="arm-none-eabi-gcc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GASErrorParser" id="com.crt.advproject.gas.exe.debug.1441601434" name="MCU Assembler" superClass="com.crt.advproject.gas.exe.debug">
@@ -130,7 +130,7 @@
 									<listOptionValue builtIn="false" value="../../../../../../lib/third_party/unity/src"/>
 									<listOptionValue builtIn="false" value="../../../../../../lib/third_party/unity/extras/fixture/src"/>
 								</option>
-								<option id="gnu.c.compiler.option.include.files.1159248160" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" valueType="includeFiles"/>
+								<option id="gnu.c.compiler.option.include.files.1159248160" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files"/>
 								<inputType id="com.crt.advproject.compiler.input.262297878" superClass="com.crt.advproject.compiler.input"/>
 							</tool>
 							<tool id="com.crt.advproject.gas.exe.release.1549976381" name="MCU Assembler" superClass="com.crt.advproject.gas.exe.release">

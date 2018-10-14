@@ -4,7 +4,7 @@
 
        This file is part of the EventOS distribution.
 
-    EventTOS is free software; you can redistribute it and/or modify it under
+    EventOS is free software; you can redistribute it and/or modify it under
     the terms of the MIT License (MIT).
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,

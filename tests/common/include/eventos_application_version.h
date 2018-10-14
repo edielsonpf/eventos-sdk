@@ -1,9 +1,10 @@
 /*
-    EventOS V1.0 - Copyright (C) 2014 Edielson Prevato Frigieri.
+    EventOS V1.0.1
+    Copyright (C) 2014 Edielson Prevato Frigieri. All Rights Reserved.
 
        This file is part of the EventOS distribution.
 
-    EventTOS is free software; you can redistribute it and/or modify it under
+    EventOS is free software; you can redistribute it and/or modify it under
     the terms of the MIT License (MIT).
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,8 +22,8 @@
 #include "eventos_appversion32.h"
 extern const AppVersion32_t xAppFirmwareVersion;
 
-#define APP_VERSION_MAJOR  0
-#define APP_VERSION_MINOR  1
-#define APP_VERSION_BUILD  0
+#define APP_VERSION_MAJOR  1
+#define APP_VERSION_MINOR  0
+#define APP_VERSION_BUILD  1
 
 #endif
