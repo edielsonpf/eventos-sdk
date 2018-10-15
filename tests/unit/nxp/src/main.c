@@ -112,7 +112,7 @@ static void vTest_StartTestEvent( unsigned portBASE_TYPE EventKey,
 
 
 /**
- * @brief Handles systick interrupts. Used to publish a start test event.
+ * @brief Handles systick interrupts. Used to publish an event to start the tests.
  *
  * This function is used to guarantee that the OS is running and
  * has been waked up by an interruption.

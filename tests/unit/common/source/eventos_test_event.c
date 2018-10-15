@@ -36,6 +36,12 @@ static unsigned long TEST_event_key = 0;
 static unsigned long TEST_event_id = 0x01;
 static void* TEST_event_pvHandler = NULL;
 
+static void vTEST_EventHandlerFunc(unsigned portBASE_TYPE EventKey,
+		  	  	  	  	  	   	   void* pvHandler,
+								   void* pvPayload,
+								   unsigned portBASE_TYPE ulPayloadSize);
+
+
 /*
  * @brief Test group definition.
  */
@@ -52,10 +58,7 @@ TEST_TEAR_DOWN( Full_EVENTOS_EVENT )
 
 TEST_GROUP_RUNNER( Full_EVENTOS_EVENT )
 {
-	/* Run publish before initialize structure. */
-	//RUN_TEST_CASE( Full_EVENTOS_EVENT, PublishEventBeforeRegister )
-
-    /* Run register tests. */
+	/* Run register tests. */
     RUN_TEST_CASE( Full_EVENTOS_EVENT, RegisterEventWithNullString );
     RUN_TEST_CASE( Full_EVENTOS_EVENT, RegisterEventTwice );
 
@@ -65,6 +68,12 @@ TEST_GROUP_RUNNER( Full_EVENTOS_EVENT )
     RUN_TEST_CASE( Full_EVENTOS_EVENT, PublishInvalidOwner );
     RUN_TEST_CASE( Full_EVENTOS_EVENT, PublishInvalidPayload );
     RUN_TEST_CASE( Full_EVENTOS_EVENT, PublishValidEvent );
+
+    /* Run subscribe tests. */
+    RUN_TEST_CASE( Full_EVENTOS_EVENT, SubscribeInvalidFunction );
+    RUN_TEST_CASE( Full_EVENTOS_EVENT, SubscribeInvalidEventKey );
+    RUN_TEST_CASE( Full_EVENTOS_EVENT, SubscribeInvalidEventHandler );
+    RUN_TEST_CASE( Full_EVENTOS_EVENT, SubscribeValidEvent );
 }
 
 
@@ -110,23 +119,6 @@ TEST( Full_EVENTOS_EVENT, RegisterEventTwice )
 	TEST_ASSERT_EQUAL_UINT32( xResult, pdFAIL );
 	/* End test. */
 }
-
-//
-//TEST( Full_EVENTOS_EVENT, PublishEventBeforeRegister )
-//{
-//    uint32_t xResult = pdFAIL;
-//
-//    /* Publish before initialize (before a first register) should fail. */
-//    xResult = xEvent_publish(TEST_event_pvHandler,
-//    						 TEST_event_key,
-//							 EVENT_PRIORITY_HIGH,
-//							 NULL,
-//							 0);
-//
-//    TEST_ASSERT_EQUAL_UINT32( xResult, pdFAIL );
-//    /* End test. */
-//
-//}
 
 TEST( Full_EVENTOS_EVENT, PublishInvalidEvent )
 {
@@ -220,4 +212,81 @@ TEST( Full_EVENTOS_EVENT, PublishValidEvent )
 
     TEST_ASSERT_EQUAL_UINT32( xResult, pdPASS );
     /* End test. */
+}
+
+
+TEST( Full_EVENTOS_EVENT, SubscribeInvalidFunction )
+{
+    uint32_t xResult = pdFAIL;
+
+    /* Subscribe using an invalid handler function should fail. */
+    xResult = xEvent_subscribe(	NULL,
+    						 	TEST_event_key,
+								TEST_event_pvHandler);
+
+    TEST_ASSERT_EQUAL_UINT32( xResult, pdFAIL );
+    /* End test. */
+}
+
+TEST( Full_EVENTOS_EVENT, SubscribeInvalidEventKey )
+{
+    uint32_t xResult = pdFAIL;
+    uint32_t ulEventKey = TEST_event_key + 1; /*invalid event key*/
+
+    /* Subscribe to an invalid event key should fail. */
+    xResult = xEvent_subscribe(	vTEST_EventHandlerFunc,
+    							ulEventKey,
+								TEST_event_pvHandler);
+
+    TEST_ASSERT_EQUAL_UINT32( xResult, pdFAIL );
+    /* End test. */
+}
+
+TEST( Full_EVENTOS_EVENT, SubscribeInvalidEventHandler )
+{
+    uint32_t xResult = pdFAIL;
+
+    /* Subscribe invalid event handler should fail. */
+    xResult = xEvent_subscribe(	vTEST_EventHandlerFunc,
+    							TEST_event_key,
+								NULL);
+
+    TEST_ASSERT_EQUAL_UINT32( xResult, pdFAIL );
+
+    /* End test. */
+}
+
+TEST( Full_EVENTOS_EVENT, SubscribeValidEvent )
+{
+    uint32_t xResult = pdFAIL;
+
+    /* Subscribe for a valid event should succeed. */
+    xResult = xEvent_subscribe(	vTEST_EventHandlerFunc,
+    							TEST_event_key,
+								TEST_event_pvHandler);
+
+    TEST_ASSERT_EQUAL_UINT32( xResult, pdPASS );
+
+
+
+    /* Publish with valid owner, key, priority and payload should succeed. */
+	xResult = xEvent_publish(TEST_event_pvHandler,
+							 TEST_event_key,
+							 EVENT_PRIORITY_HIGH,
+							 NULL,
+							 0);
+
+	TEST_ASSERT_EQUAL_UINT32( xResult, pdPASS );
+
+    /* End test. */
+}
+
+
+/*Support test function*/
+static void vTEST_EventHandlerFunc(unsigned portBASE_TYPE EventKey,
+		  	  	  	  	  	   	   void* pvHandler,
+								   void* pvPayload,
+								   unsigned portBASE_TYPE ulPayloadSize)
+{
+	TEST_ASSERT_EQUAL_UINT32( EventKey, TEST_event_key );
 }
