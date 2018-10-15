@@ -44,7 +44,7 @@
 static unsigned long TEST_main_key = 0;
 static unsigned long TEST_main_id = 0x02;
 static void* TEST_main_pvHandler = NULL;
-static unsigned long TEST_system_initialized = 0;
+static unsigned long TEST_main_sys_initialized = 0;
 
 /*********************************************************
     private prototypes.
@@ -121,10 +121,10 @@ static void vTest_StartTestEvent( unsigned portBASE_TYPE EventKey,
  */
 void vTest_SysTickHandler(void)
 {
-	if(TEST_system_initialized == 0)
+	if(TEST_main_sys_initialized == 0)
 	{
 		/*We are starting the tests once*/
-		TEST_system_initialized = 1;
+		TEST_main_sys_initialized = 1;
 
 		xEvent_publish(TEST_main_pvHandler, 		/* Pointer to the publisher */
 					   TEST_main_key, 				/* Event key to be published */

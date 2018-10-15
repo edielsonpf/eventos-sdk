@@ -34,16 +34,16 @@
 								<option id="gnu.c.compiler.option.misc.other.2111596006" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
 								<option id="gnu.c.compiler.option.include.paths.1749926536" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../../../inc"/>
-									<listOptionValue builtIn="false" value="../../../../../../drivers/LPC17xx_HAL_Drivers/inc"/>
-									<listOptionValue builtIn="false" value="../../../../../../drivers/cmsis/include"/>
-									<listOptionValue builtIn="false" value="../../../../../../drivers/bsp/EA-XPR-021"/>
-									<listOptionValue builtIn="false" value="../../../../../../drivers/cmsis/device/NXP/LPC17xx/include"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/EventOS/portable/device/NXP/LPC17xx"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/include"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/include/private"/>
-									<listOptionValue builtIn="false" value="../../../../../../tests/common/include"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/third_party/unity/src"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/third_party/unity/extras/fixture/src"/>
+									<listOptionValue builtIn="false" value="../../../../../../../drivers/LPC17xx_HAL_Drivers/inc"/>
+									<listOptionValue builtIn="false" value="../../../../../../../drivers/cmsis/include"/>
+									<listOptionValue builtIn="false" value="../../../../../../../drivers/bsp/EA-XPR-021"/>
+									<listOptionValue builtIn="false" value="../../../../../../../drivers/cmsis/device/NXP/LPC17xx/include"/>
+									<listOptionValue builtIn="false" value="../../../../../../../lib/EventOS/portable/device/NXP/LPC17xx"/>
+									<listOptionValue builtIn="false" value="../../../../../../../lib/include"/>
+									<listOptionValue builtIn="false" value="../../../../../../../lib/include/private"/>
+									<listOptionValue builtIn="false" value="../../../../../../../tests/unit/common/include"/>
+									<listOptionValue builtIn="false" value="../../../../../../../lib/third_party/unity/src"/>
+									<listOptionValue builtIn="false" value="../../../../../../../lib/third_party/unity/extras/fixture/src"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.files.1662452505" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files"/>
 								<inputType id="com.crt.advproject.compiler.input.734343890" superClass="com.crt.advproject.compiler.input"/>
@@ -119,16 +119,16 @@
 								<option id="gnu.c.compiler.option.misc.other.1763715889" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
 								<option id="gnu.c.compiler.option.include.paths.185684965" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../../../inc"/>
-									<listOptionValue builtIn="false" value="../../../../../../drivers/LPC17xx_HAL_Drivers/inc"/>
-									<listOptionValue builtIn="false" value="../../../../../../drivers/cmsis/include"/>
-									<listOptionValue builtIn="false" value="../../../../../../drivers/bsp/EA-XPR-021"/>
-									<listOptionValue builtIn="false" value="../../../../../../drivers/cmsis/device/NXP/LPC17xx/include"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/EventOS/portable/device/NXP/LPC17xx"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/include"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/include/private"/>
-									<listOptionValue builtIn="false" value="../../../../../../tests/common/include"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/third_party/unity/src"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/third_party/unity/extras/fixture/src"/>
+									<listOptionValue builtIn="false" value="../../../../../../../drivers/LPC17xx_HAL_Drivers/inc"/>
+									<listOptionValue builtIn="false" value="../../../../../../../drivers/cmsis/include"/>
+									<listOptionValue builtIn="false" value="../../../../../../../drivers/bsp/EA-XPR-021"/>
+									<listOptionValue builtIn="false" value="../../../../../../../drivers/cmsis/device/NXP/LPC17xx/include"/>
+									<listOptionValue builtIn="false" value="../../../../../../../lib/EventOS/portable/device/NXP/LPC17xx"/>
+									<listOptionValue builtIn="false" value="../../../../../../../lib/include"/>
+									<listOptionValue builtIn="false" value="../../../../../../../lib/include/private"/>
+									<listOptionValue builtIn="false" value="../../../../../../../tests/unit/common/include"/>
+									<listOptionValue builtIn="false" value="../../../../../../../lib/third_party/unity/src"/>
+									<listOptionValue builtIn="false" value="../../../../../../../lib/third_party/unity/extras/fixture/src"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.files.1159248160" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files"/>
 								<inputType id="com.crt.advproject.compiler.input.262297878" superClass="com.crt.advproject.compiler.input"/>
