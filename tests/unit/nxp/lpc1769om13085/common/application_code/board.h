@@ -19,6 +19,8 @@
 #ifndef BOARD_H_
 #define BOARD_H_
 
+#include "LPC17xx.h"
+
 void Board_initialize(void);
 
 #endif /* BOARD_H_ */

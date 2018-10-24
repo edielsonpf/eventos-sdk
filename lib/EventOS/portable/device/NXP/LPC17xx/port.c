@@ -27,7 +27,6 @@
 
 /* Portable includes ------------------------------------------------------------------- */
 #include "LPC17xx.h"
-#include "lpc_types.h"
 
 /* Constants required to manipulate the NVIC. */
 #define portNVIC_SYSPRI2			( ( volatile unsigned long *) 0xe000ed20 )

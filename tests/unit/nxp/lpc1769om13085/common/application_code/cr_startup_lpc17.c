@@ -118,8 +118,7 @@ void USBActivity_IRQHandler(void) ALIAS(IntDefaultHandler);
 void CANActivity_IRQHandler(void) ALIAS(IntDefaultHandler);
 
 extern void xPortPendSVHandler(void);
-extern void xPortUart3Handler(void);
-extern void vTest_SysTickHandler(void);
+extern void xPortSysTickHandler(void);
 //*****************************************************************************
 //
 // The entry point for the application.
@@ -167,7 +166,7 @@ void (* const g_pfnVectors[])(void) = {
 	DebugMon_Handler,						// Debug monitor handler
 	0,										// Reserved
 	xPortPendSVHandler,                     // The PendSV handler
-	vTest_SysTickHandler,                    // The SysTick handler
+	xPortSysTickHandler,                    // The SysTick handler
 
 	// Chip Level - LPC17
 	WDT_IRQHandler,							// 16, 0x40 - WDT

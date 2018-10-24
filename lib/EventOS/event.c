@@ -211,7 +211,7 @@ signed portBASE_TYPE xEvent_register (	void* pvEventOwner,
 	if(strlen(szEventName) >= configMAX_EVENT_NAME_LEN) return pdFAIL;
 	if(strlen(szEventName) < 2) return pdFAIL; /* event name should have length greater then 1 */
 
-	signed portBASE_TYPE xReturn = pdPASS;
+	signed portBASE_TYPE xReturn = pdTRUE;
 	unsigned portBASE_TYPE ulNewKey = 0;
 	portBASE_TYPE x = 0;
 
@@ -307,7 +307,7 @@ signed portBASE_TYPE xEvent_subscribe (	pdEVENT_HANDLER_FUNCTION pFunction,
 	if (pvSubscriber == NULL) 	return pdFAIL;
 	if (evt_ulCurrentNumberOfRegEvents == 0) return pdFAIL;
 
-	signed portBASE_TYPE xReturn = pdPASS;
+	signed portBASE_TYPE xReturn = pdTRUE;
 
 	/*
 	 * Check if the event key is already registered in the system
@@ -327,18 +327,11 @@ signed portBASE_TYPE xEvent_subscribe (	pdEVENT_HANDLER_FUNCTION pFunction,
 			portDISABLE_INTERRUPTS();
 			{
 				prvEvent_addSubscriberToList( pxNewSubscriber );
+
+				xReturn = pdPASS;
 			}
 			portENABLE_INTERRUPTS();
 		}
-		else
-		{
-			xReturn = pdFAIL;
-		}
-	}
-	else
-	{
-		/* The key is not registered */
-		xReturn = pdFAIL;
 	}
 
 	return xReturn;

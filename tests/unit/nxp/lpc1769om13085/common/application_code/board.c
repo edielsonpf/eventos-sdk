@@ -23,9 +23,6 @@
 #include "event.h"
 
 #include "board.h"
-#include "lpc17xx_pinsel.h"
-#include "lpc17xx_timer.h"
-
 
 /*********************************************************
     private definition.

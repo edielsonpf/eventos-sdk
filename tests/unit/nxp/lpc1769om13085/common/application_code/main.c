@@ -55,7 +55,6 @@ static void vTest_StartTestEvent( unsigned portBASE_TYPE EventKey,
 								  unsigned portBASE_TYPE ulPayloadSize);
 
 
-void vTest_SysTickHandler(void); /* Changed at cr_startup_lpc17.c*/
 /*********************************************************
     private prototypes.
 *********************************************************/
@@ -119,7 +118,7 @@ static void vTest_StartTestEvent( unsigned portBASE_TYPE EventKey,
  *
  * @return This function returns void.
  */
-void vTest_SysTickHandler(void)
+void xPortSysTickHandler(void)
 {
 	if(TEST_main_sys_initialized == 0)
 	{
