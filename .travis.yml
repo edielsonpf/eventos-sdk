@@ -1,7 +1,6 @@
 language: c
 
-compiler:
-  - arm-none-eabi-gcc
+compiler: arm-none-eabi-gcc
 
 # Coverity configuration.
 
