@@ -1,0 +1,41 @@
+language: c
+
+# Coverity configuration.
+
+addons:
+
+  coverity_scan:
+
+    project:
+
+      name: "eventos-sdk"
+
+      description: "EventOS - Event-driven Operating Systems "
+
+    notification_email: edielsonpf@gmail.com
+
+    build_command_prepend: "cd tests/unit/nxp/lpc1769om13085/makefile"
+
+    build_command: "make all"
+
+    branch_pattern: master
+
+
+install:
+
+  - xpm install --global @gnu-mcu-eclipse/arm-none-eabi-gcc
+
+    
+
+script:
+
+  # Build the unit tests.
+
+  - cd tests/unit/nxp/lpc1769om13085/makefile
+
+  - make all
+
+
+  # Execute unit tests.
+
+  
