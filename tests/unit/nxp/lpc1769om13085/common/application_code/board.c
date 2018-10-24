@@ -16,35 +16,45 @@
 
  */
 
-/**
- * @file main.c
- * @brief Implements the main function.
- */
-
-/* Standard includes. */
-#include <stdlib.h>
+#include <cr_section_macros.h>
+#include <NXP/crp.h>
 #include <stdio.h>
 
-/* EventOS include. */
-#include "EventOS.h"
 #include "event.h"
 
-/* Test runner includes. */
-#include "eventos_test_runner.h"
-
-/* Unity includes. */
-#include "unity.h"
+#include "board.h"
 
 /*********************************************************
     private definition.
 *********************************************************/
 
-int main()
+
+
+/*********************************************************
+    private operations
+*********************************************************/
+
+static void Board_initSysTick(void);
+
+
+/*********************************************************
+    public implementations
+*********************************************************/
+
+void Board_initialize(void)
 {
-	TEST_RUNNER_RunTests();
+	Board_initSysTick();
+}
 
-	vEvent_startScheduler();
+/*********************************************************
+    private implementations
+*********************************************************/
 
-	/*Should never reach here*/
-	return 0;
+static void Board_initSysTick(void)
+{
+	// Setup Systick Timer to interrupt at 1 msec intervals
+	if (SysTick_Config(SystemCoreClock/1000))
+	{
+	    while (1);  // Capture error
+	}
 }

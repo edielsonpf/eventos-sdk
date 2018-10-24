@@ -215,7 +215,6 @@ signed portBASE_TYPE xEvent_register (	void* pvEventOwner,
 	unsigned portBASE_TYPE ulNewKey = 0;
 	portBASE_TYPE x = 0;
 
-
 	portDISABLE_INTERRUPTS();
 	{
 		evt_ulCurrentNumberOfRegEvents++;
@@ -245,36 +244,35 @@ signed portBASE_TYPE xEvent_register (	void* pvEventOwner,
 		 * */
 		if(prvEvent_checkEventKey(ulNewKey) == pdFALSE)
 		{
+			pxEventAdminList[ulNewKey].bInUse = pdTRUE;
+			pxEventAdminList[ulNewKey].ulEventKey = ulNewKey;
 
-				pxEventAdminList[ulNewKey].bInUse = pdTRUE;
-				pxEventAdminList[ulNewKey].ulEventKey = ulNewKey;
+			/* Store the task name in the TCB. */
+			for( x = ( portBASE_TYPE ) 0; x < ( portBASE_TYPE ) configMAX_EVENT_NAME_LEN; x++ )
+			{
+				pxEventAdminList[ulNewKey].szEventName[x] = szEventName[x];
 
-				/* Store the task name in the TCB. */
-				for( x = ( portBASE_TYPE ) 0; x < ( portBASE_TYPE ) configMAX_EVENT_NAME_LEN; x++ )
+				/* Don't copy all configMAX_EVENT_NAME_LEN if the string is shorter than
+				configMAX_EVENT_NAME_LEN characters just in case the memory after the
+				string is not accessible (extremely unlikely). */
+
+				if( szEventName[ x ] == 0x00 )
 				{
-					pxEventAdminList[ulNewKey].szEventName[x] = szEventName[x];
-
-					/* Don't copy all configMAX_EVENT_NAME_LEN if the string is shorter than
-					configMAX_EVENT_NAME_LEN characters just in case the memory after the
-					string is not accessible (extremely unlikely). */
-
-					if( szEventName[ x ] == 0x00 )
-					{
-						break;
-					}
+					break;
 				}
+			}
 
-				/* Ensure the name string is terminated in the case that the string length
-				was greater or equal to configMAX_EVENT_NAME_LEN. */
+			/* Ensure the name string is terminated in the case that the string length
+			was greater or equal to configMAX_EVENT_NAME_LEN. */
 
-				pxEventAdminList[ulNewKey].szEventName[ configMAX_EVENT_NAME_LEN - 1 ] = '\0';
-				pxEventAdminList[ulNewKey].pvEventOwner = pvEventOwner;
-				pxEventAdminList[ulNewKey].ulCurrentNumberOfSubscribers = 0;
+			pxEventAdminList[ulNewKey].szEventName[ configMAX_EVENT_NAME_LEN - 1 ] = '\0';
+			pxEventAdminList[ulNewKey].pvEventOwner = pvEventOwner;
+			pxEventAdminList[ulNewKey].ulCurrentNumberOfSubscribers = 0;
 
-				/*
-				 * return the new event key to the user.
-				 */
-				*pulEventKey = ulNewKey;
+			/*
+			 * return the new event key to the user.
+			 */
+			*pulEventKey = ulNewKey;
 		}
 		else
 		{
@@ -305,9 +303,9 @@ signed portBASE_TYPE xEvent_subscribe (	pdEVENT_HANDLER_FUNCTION pFunction,
 										unsigned portBASE_TYPE ulEventKey,
 										void* pvSubscriber)
 {
-	if(pFunction == NULL) 		return pdFAIL;
-	if(pvSubscriber == NULL) 	return pdFAIL;
-	if(evt_ulCurrentNumberOfRegEvents == 0) return pdFAIL;
+	if (pFunction == NULL) 		return pdFAIL;
+	if (pvSubscriber == NULL) 	return pdFAIL;
+	if (evt_ulCurrentNumberOfRegEvents == 0) return pdFAIL;
 
 	signed portBASE_TYPE xReturn = pdTRUE;
 
@@ -355,42 +353,39 @@ signed portBASE_TYPE xEvent_publish (void* pvPublisher,
 									 unsigned portBASE_TYPE ulPayloadSize)
 {
 	if (ulPriority >= EVENT_PRIORITY_LAST) return pdFAIL;
+	if (evt_ulCurrentNumberOfRegEvents == 0) return pdFAIL;
 
 	portBASE_TYPE xStatus = pdPASS;
+	evtECB* pxNewEvent = NULL;
 
 	if( prvEvent_validateEventPublisher(pvPublisher, ulEventKey) )
 	{
-		evtECB* pxNewEvent = (evtECB*)pvPortMalloc(sizeof(evtECB));
+		pxNewEvent = (evtECB*)pvPortMalloc(sizeof(evtECB));
 		if(pxNewEvent)
 		{
 			prvEvent_initializeECBVariables(pxNewEvent,
 											ulEventKey,
 											ulPriority);
 
-			/*
-			 * Initialize the payload container in the event block
-			 * */
+			/* Initialize the payload container in the event block */
 			if(ulPayloadSize > 0)
 			{
-				pxNewEvent->pvPayload = pvPortMalloc(ulPayloadSize);
-				if(pxNewEvent->pvPayload)
+				/* Check if payload pointer is not NULL*/
+				if(pvPayload)
 				{
-					memcpy(pxNewEvent->pvPayload, pvPayload, ulPayloadSize);
-					pxNewEvent->ulPayloadSize = ulPayloadSize;
+					pxNewEvent->pvPayload = pvPortMalloc(ulPayloadSize);
+					if(pxNewEvent->pvPayload)
+					{
+						memcpy(pxNewEvent->pvPayload, pvPayload, ulPayloadSize);
+						pxNewEvent->ulPayloadSize = ulPayloadSize;
+					}
+				}
+				else
+				{
+					xStatus = pdFAIL;
+					prvEvent_deleteECB(pxNewEvent);
 				}
 			}
-			else
-			{
-				pxNewEvent->pvPayload = NULL;
-				pxNewEvent->ulPayloadSize = 0;
-			}
-
-			portDISABLE_INTERRUPTS();
-			{
-				prvEvent_addEventToList( pxNewEvent );
-			}
-			portENABLE_INTERRUPTS();
-			portGENERATE_EVENT();
 		}
 		else
 		{
@@ -402,6 +397,15 @@ signed portBASE_TYPE xEvent_publish (void* pvPublisher,
 		xStatus = pdFAIL;
 	}
 
+	if(xStatus == pdPASS)
+	{
+		portDISABLE_INTERRUPTS();
+		{
+			prvEvent_addEventToList( pxNewEvent );
+		}
+		portENABLE_INTERRUPTS();
+		portGENERATE_EVENT();
+	}
 
 	return xStatus;
 }
@@ -501,6 +505,8 @@ __PRIVATE_ void prvEvent_initializeECBVariables( evtECB* pxECB,
 
 	pxECB->ulEventKey = ulEventKey;
 	pxECB->ulEventPriority = ulEventPriority;
+	pxECB->pvPayload = NULL;
+	pxECB->ulPayloadSize = 0;
 
 	/*Easier to access and run over the subscribers list*/
 	pxECB->pxSubscriberList = (& pxEventAdminList[ulEventKey].xSubscriberList);
@@ -631,7 +637,10 @@ __PRIVATE_ void prvEvent_deleteECB( evtECB* pxECB )
 {
 	/* Free up the memory allocated by the scheduler for the task.  It is up to
 	the task to free any memory allocated at the application level. */
-	vPortFree( pxECB->pvPayload );
+	if(pxECB->pvPayload)
+	{
+		vPortFree( pxECB->pvPayload );
+	}
 	vPortFree( pxECB );
 }
 
