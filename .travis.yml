@@ -1,7 +1,5 @@
 language: c
 
-compiler: arm-none-eabi-gcc
-
 # Coverity configuration.
 
 addons:
@@ -37,7 +35,7 @@ install:
 	
   - xpm install --global @gnu-mcu-eclipse/arm-none-eabi-gcc
 
-
+    
 script:
 
   # Build the unit tests.
