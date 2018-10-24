@@ -1,5 +1,8 @@
 language: c
 
+compiler:
+  - arm-none-eabi-gcc
+
 # Coverity configuration.
 
 addons:
@@ -22,10 +25,19 @@ addons:
 
 
 install:
+	
+  - mkdir -p "${HOME}"/opt/npm
 
+  - npm config set prefix "${HOME}"/opt/npm
+
+  - echo 'export PATH="${HOME}"/opt/npm/bin:${PATH}' >> "${HOME}"/.profile
+
+  - source "${HOME}"/.profile
+  
+  - npm install --global xpm
+	
   - xpm install --global @gnu-mcu-eclipse/arm-none-eabi-gcc
 
-    
 
 script:
 
