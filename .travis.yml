@@ -36,8 +36,16 @@ install:
   - npm install --global xpm
 
   - xpm install --global @gnu-mcu-eclipse/arm-none-eabi-gcc
+  
+ # Export the path and check if gcc has been installed successfully
+ 
+  - echo 'export PATH="${HOME}"/opt/gcc-arm-none-eabi-7-2017-q4-major/bin/bin:${PATH}' >> "${HOME}"/$USER/.bashrc
+  
+  - source "${HOME}"/.bashrc
+  
+  - arm-none-eabi-gcc --version
 
-    
+  
 script:
 
   # Build the unit tests.
