@@ -43,6 +43,8 @@ install:
   
   - source "${HOME}"/.bashrc
   
+  - "${HOME}"/opt/gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-gcc --version
+  
   - arm-none-eabi-gcc --version
 
   
