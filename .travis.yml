@@ -37,8 +37,6 @@ install:
 
   - xpm install --global @gnu-mcu-eclipse/arm-none-eabi-gcc
   
-  - tree -L 2 /Users/ilg/Library/xPacks/\@gnu-mcu-eclipse/arm-none-eabi-gcc/7.3.1-1.1/.content/
-  
  # Export the path and check if gcc has been installed successfully
  
   - echo 'export PATH="${HOME}"/opt/xPacks/@gnu-mcu-eclipse/arm-none-eabi-gcc/7.3.1-1.1/.content/bin:${PATH}' >> "${HOME}"/.bashrc
