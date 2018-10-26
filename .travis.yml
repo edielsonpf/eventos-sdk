@@ -31,11 +31,13 @@ install:
   
   - tar xjf "${HOME}"/opt/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2
 
-  - chmod -R -w "${HOME}"/opt/gcc-arm-none-eabi-7-2018-q2-update
+  - ls -la "${HOME}"/opt/
+  
+  - chmod -R -w "${HOME}"/opt/gcc-arm-none-eabi-7-2018-q2-update-linux
 
  # Export the path and check if gcc has been installed successfully
  
-  - echo 'export PATH="${HOME}"/opt/gcc-arm-none-eabi-7-2018-q2-update/bin:${PATH}' >> "${HOME}"/.bashrc
+  - echo 'export PATH="${HOME}"/opt/gcc-arm-none-eabi-7-2018-q2-update-linux/bin:${PATH}' >> "${HOME}"/.bashrc
   
   - source "${HOME}"/.bashrc
   
