@@ -14,7 +14,7 @@ addons:
 
       description: "EventOS - Event-driven Operating Systems "
 
-    notification_email: edielsonpf@gmail.com
+    notification_email: nobody@gmail.com
 
     build_command_prepend: "cd tests/unit/nxp/lpc1769om13085/makefile"
 
@@ -25,15 +25,18 @@ addons:
 
 install:
 
-  - wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2?revision=bc2c96c0-14b5-4bb4-9f18-bceb4050fee7?product=GNU%20Arm%20Embedded%20Toolchain,64-bit,,Linux,7-2018-q2-update -O /tmp/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2
+  - mkdir -p "${HOME}"/opt
   
-  - tar -xvf /tmp/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2
+  - wget https://github.com/gnu-mcu-eclipse/arm-none-eabi-gcc/releases/download/v7.3.1-1.1/gnu-mcu-eclipse-arm-none-eabi-gcc-7.3.1-1.1-20180724-0637-centos64.tgz -O /tmp/gnu-mcu-eclipse-arm-none-eabi-gcc-7.3.1-1.1.tgz
+  
+  - tar xf /tmp/gnu-mcu-eclipse-arm-none-eabi-gcc-7.3.1-1.1.tgz  -C "${HOME}"/opt
+  
 
-  - chmod -R -w gcc-arm-none-eabi-7-2018-q2-update
+  - chmod -R -w "${HOME}"/opt/gnu-mcu-eclipse-arm-none-eabi-gcc-7.3.1-1.1
   
  # Export the path and check if gcc has been installed successfully
  
-  - export PATH=$PATH:$PWD/gcc-arm-none-eabi-7-2018-q2-update/bin/
+  - export PATH=$PATH:"${HOME}"/opt/gnu-mcu-eclipse-arm-none-eabi-gcc-7.3.1-1.1/bin/
   
   - arm-none-eabi-gcc --version
 
