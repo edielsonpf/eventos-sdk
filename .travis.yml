@@ -35,11 +35,19 @@ install:
   
   - npm install --global xpm
 
-  - xpm install --global @gnu-mcu-eclipse/arm-none-eabi-gcc
+  - cd "${HOME}"/Downloads/
   
+  - wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2017q4/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2?revision=375265d4-e9b5-41c8-bf23-56cbe927e156?product=GNU%20Arm%20Embedded%20Toolchain,64-bit,,Linux,7-2017-q4-major
+  
+  -  mkdir -p "${HOME}"/opt
+  
+  - tar xjf ~/Downloads/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2
+
+  - chmod -R -w "${HOME}"/opt/gcc-arm-none-eabi-7-2017-q4-major
+
  # Export the path and check if gcc has been installed successfully
  
-  - echo 'export PATH="${HOME}"/opt/xPacks/@gnu-mcu-eclipse/arm-none-eabi-gcc/7.3.1-1.1.1/.content/bin:${PATH}' >> "${HOME}"/.bashrc
+  - echo 'export PATH="${HOME}"/opt/gcc-arm-none-eabi-7-2017-q4-major/bin:${PATH}' >> "${HOME}"/.bashrc
   
   - source "${HOME}"/.bashrc
   

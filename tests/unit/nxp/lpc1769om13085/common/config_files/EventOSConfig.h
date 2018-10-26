@@ -18,6 +18,17 @@
 #ifndef EVENTOSCONFIG_H_
 #define EVENTOSCONFIG_H_
 
+
+/* Ensure stdint is only used by the compiler, and not the assembler. */
+
+#if defined( __ICCARM__ ) || defined( __ARMCC_VERSION ) || defined( __GNUC__ )
+
+    #include <stdint.h>
+
+    extern uint32_t SystemCoreClock;
+
+#endif
+
 /*-----------------------------------------------------------
  * Application specific definitions.
  *
@@ -26,8 +37,18 @@
  *
  *----------------------------------------------------------*/
 
-#define configEVENTOS_LIFE_TIME						( 3 )
+#define configUSE_SLEEP_MODE				0
 
+
+/* The maximun number of times one event stays in the same priority queue
+ * (avoid starvation). */
+#define configEVENTOS_LIFE_TIME				( 3 )
+
+/* The maximun name lenght for an event. */
+#define configMAX_EVENT_NAME_LEN			( 25 )
+
+/* The maximun number of events can be stored in the kernel. */
+#define configMAX_NUM_EVENTS				( 256 )
 
 /* Use the system definition, if there is one */
 #ifdef __NVIC_PRIO_BITS
@@ -38,8 +59,11 @@
 
 /* The lowest priority. */
 #define configKERNEL_INTERRUPT_PRIORITY 	( 31 << (8 - configPRIO_BITS) )
-#define configMAX_EVENT_NAME_LEN			( 25 )
 
-#define configMAX_NUM_EVENTS				( 256 )
+
+/* Definitions that map the FreeRTOS port interrupt handlers to their CMSIS
+ * standard names. */
+#define xPortPendSVHandler            PendSV_Handler
+#define xPortSysTickHandler           SysTick_Handler
 
 #endif /* EVENTOSCONFIG_H_ */

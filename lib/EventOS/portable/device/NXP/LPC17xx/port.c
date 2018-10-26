@@ -67,7 +67,7 @@ portBASE_TYPE xPortStartScheduler( void )
 */
 void vPortEnterSleepMode( void )
 {
-#ifdef NDEBUG
+#if (configUSE_SLEEP_MODE == 1)
 	/* Enter in sleep on exit mode. */
 	SCB->SCR = 0x2;
 	LPC_SC->PCON = 0x00;
@@ -76,26 +76,6 @@ void vPortEnterSleepMode( void )
 	while(1);
 #endif
 }
-
-/**
-	Print log in console
-
-    @param pointer log message
-    @return void
-    @author gabriels
-    @date   25/09/2014
-*/
-void vPortPrintLog(char* pcMessage)
-{
-	#ifdef NDEBUG
-		/*  */
-	#else
-		printf(pcMessage);
-	#endif
-}
-
-/*-----------------------------------------------------------*/
-
 
 /*-----------------------------------------------------------*/
 
