@@ -31,11 +31,11 @@ install:
   
   - tar xf /tmp/gnu-mcu-eclipse-arm-none-eabi-gcc-7.3.1-1.1.tgz  -C "${HOME}"/opt
 
-  - chmod -R -w "${HOME}"/opt/GNU MCU Eclipse/ARM Embedded GCC/7.3.1-1.1-20180724-0637
+  - chmod -R -w "${HOME}"/opt/gnu-mcu-eclipse/arm-none-eabi-gcc/7.3.1-1.1-20180724-0637
   
  # Export the path and check if gcc has been installed successfully
  
-  - export PATH=$PATH:"${HOME}"/opt/GNU MCU Eclipse/ARM Embedded GCC/7.3.1-1.1-20180724-0637/bin/
+  - export PATH=$PATH:"${HOME}"/opt/gnu-mcu-eclipse/arm-none-eabi-gcc/7.3.1-1.1-20180724-0637
   
   - arm-none-eabi-gcc --version
   
