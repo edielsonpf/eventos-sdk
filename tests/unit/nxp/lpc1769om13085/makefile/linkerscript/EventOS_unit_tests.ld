@@ -5,11 +5,11 @@
  * Generated linker script file for LPC1769
  * Created from linkscript.ldt by FMCreateLinkLibraries
  * Using Freemarker v2.3.23
- * LPCXpresso v8.2.2 [Build 650] [2016-09-09]  on Oct 24, 2018 7:06:08 PM
+ * LPCXpresso v8.2.2 [Build 650] [2016-09-09]  on Oct 26, 2018 8:47:12 PM
  */
 
-INCLUDE "linker/EventOS_library.ld"
-INCLUDE "linker/EventOS_memory.ld"
+INCLUDE "linkerscript/EventOS_unit_tests_library.ld"
+INCLUDE "linkerscript/EventOS_unit_tests_memory.ld"
 
 ENTRY(ResetISR)
 
