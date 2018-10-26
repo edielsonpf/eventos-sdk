@@ -66,12 +66,12 @@ unsigned long Log_getHostIp(char* pcIpFormat, unsigned long ulCurrentSize);
 */
 unsigned long Log_getDateTime(char* pcDateTimeFormat, unsigned long ulCurrentSize)
 {
-	unsigned char ucSecond = 0;
-	unsigned char ucMinute = 0;
-	unsigned char ucHour = 12;
-	unsigned char ucDay = 23;
-	unsigned char ucMonth = 10;
-	unsigned char ucYear = 14;
+	unsigned long ulSecond = 0;
+	unsigned long ulMinute = 0;
+	unsigned long ulHour = 12;
+	unsigned long ulDay = 23;
+	unsigned long ulMonth = 10;
+	unsigned long ulYear = 14;
 
 	unsigned long ulSize;
 
@@ -79,7 +79,7 @@ unsigned long Log_getDateTime(char* pcDateTimeFormat, unsigned long ulCurrentSiz
 
 
 	ulSize = snprintf((char*)pcDateTimeFormat, (LOG_PACKET_SIZE - ulCurrentSize),"%2.2ld-%2.2ld-%2.2ld %2.2ld:%2.2ld:%2.2ld ",
-			ucYear, ucMonth, ucDay, ucHour, ucMinute, ucSecond);
+			ulYear, ulMonth, ulDay, ulHour, ulMinute, ulSecond);
 
 	return ulSize;
 

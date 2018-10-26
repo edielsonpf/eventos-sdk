@@ -101,7 +101,7 @@ CC_OPTIONS := -c -std=gnu99 -D__USE_CMSIS=CMSISv2p00_LPC17xx -DLPCXPRESSO_LPC17x
 
 ############################
 # Linker Options
-LL_OPTIONS := -nostdlib -Xlinker -Map="linker/EventOS.map" -Xlinker --gc-sections -Xlinker -print-memory-usage -mcpu=cortex-m3 -mthumb -T "linker/EventOS.ld" -o $(EXE)
+LL_OPTIONS := -nostdlib -Xlinker -Map="linkerscript/EventOS_unit_tests.map" -Xlinker --gc-sections -Xlinker -print-memory-usage -mcpu=cortex-m3 -mthumb -T "linkerscript/EventOS_unit_tests.ld" -o $(EXE)
 
 
 ############################
