@@ -8,4 +8,4 @@
  * LPCXpresso v8.2.2 [Build 650] [2016-09-09]  on Oct 26, 2018 8:47:12 PM
  */
 
-GROUP (libgcc.a, libgcov.a)
+GROUP (libgcc.a libc.a libm.a libcr_newlib_semihost.a)
