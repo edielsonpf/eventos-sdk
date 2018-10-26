@@ -16,12 +16,9 @@
 
  */
 
-#include <cr_section_macros.h>
-#include <NXP/crp.h>
 #include <stdio.h>
 
 #include "event.h"
-
 #include "board.h"
 
 /*********************************************************
