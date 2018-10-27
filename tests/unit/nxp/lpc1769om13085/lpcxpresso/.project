@@ -105,9 +105,9 @@
 			<locationURI>PARENT-5-PROJECT_LOC/drivers/cmsis/device/NXP/LPC17xx/source/system_LPC17xx.c</locationURI>
 		</link>
 		<link>
-			<name>Lib/EventOS/Port/LPC17xx/port.c</name>
+			<name>Lib/EventOS/Port/ARM_CM3/port.c</name>
 			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/lib/EventOS/portable/device/NXP/LPC17xx/port.c</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/lib/EventOS/portable/GCC/ARM_CM3/port.c</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

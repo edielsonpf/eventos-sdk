@@ -550,7 +550,7 @@ Discarded input sections
  .debug_macro   0x00000000      0x54f eventos_test_framework.o
  .debug_macro   0x00000000      0x94a eventos_test_framework.o
  .debug_macro   0x00000000       0x10 eventos_test_framework.o
- .debug_line    0x00000000      0x619 eventos_test_framework.o
+ .debug_line    0x00000000      0x612 eventos_test_framework.o
  .debug_str     0x00000000    0x1c5df eventos_test_framework.o
  .comment       0x00000000       0x6f eventos_test_framework.o
  .debug_frame   0x00000000       0xac eventos_test_framework.o
@@ -2528,20 +2528,20 @@ OUTPUT(EventOS_unit_tests.axf elf32-littlearm)
  .debug_macro   0x00005434      0x268 unity.o
  .debug_macro   0x0000569c      0x2cd unity_fixture.o
 
-.debug_line     0x00000000     0x44fd
- .debug_line    0x00000000      0x6da main.o
- .debug_line    0x000006da      0x512 board.o
- .debug_line    0x00000bec      0x331 system_LPC17xx.o
- .debug_line    0x00000f1d      0x34b cr_startup_lpc17.o
- .debug_line    0x00001268      0x766 eventos_test_event.o
- .debug_line    0x000019ce      0x6bf eventos_test_runner.o
- .debug_line    0x0000208d      0x72b event.o
- .debug_line    0x000027b8      0x434 list.o
- .debug_line    0x00002bec      0x548 port.o
- .debug_line    0x00003134      0xc18 unity.o
- .debug_line    0x00003d4c      0x7b1 unity_fixture.o
+.debug_line     0x00000000     0x44cc
+ .debug_line    0x00000000      0x6d3 main.o
+ .debug_line    0x000006d3      0x50b board.o
+ .debug_line    0x00000bde      0x331 system_LPC17xx.o
+ .debug_line    0x00000f0f      0x34b cr_startup_lpc17.o
+ .debug_line    0x0000125a      0x75f eventos_test_event.o
+ .debug_line    0x000019b9      0x6b8 eventos_test_runner.o
+ .debug_line    0x00002071      0x724 event.o
+ .debug_line    0x00002795      0x42d list.o
+ .debug_line    0x00002bc2      0x541 port.o
+ .debug_line    0x00003103      0xc18 unity.o
+ .debug_line    0x00003d1b      0x7b1 unity_fixture.o
 
-.debug_str      0x00000000    0x238a3
+.debug_str      0x00000000    0x2389c
  .debug_str     0x00000000    0x202bb main.o
                               0x20542 (size before relaxing)
  .debug_str     0x000202bb      0x38d board.o
@@ -2558,11 +2558,11 @@ OUTPUT(EventOS_unit_tests.axf elf32-littlearm)
                                0x859d (size before relaxing)
  .debug_str     0x000222d5       0xbc list.o
                                0x6cff (size before relaxing)
- .debug_str     0x00022391      0x1ac port.o
-                               0xbe2d (size before relaxing)
- .debug_str     0x0002253d     0x10ba unity.o
+ .debug_str     0x00022391      0x1a5 port.o
+                               0xbe26 (size before relaxing)
+ .debug_str     0x00022536     0x10ba unity.o
                               0x1cce4 (size before relaxing)
- .debug_str     0x000235f7      0x2ac unity_fixture.o
+ .debug_str     0x000235f0      0x2ac unity_fixture.o
                               0x1cb31 (size before relaxing)
 
 .comment        0x00000000       0x6e

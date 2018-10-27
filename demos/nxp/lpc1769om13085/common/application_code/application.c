@@ -20,6 +20,7 @@
 #include <NXP/crp.h>
 #include <stdio.h>
 
+#include "EventOS.h"
 #include "event.h"
 
 #include "application.h"
@@ -240,7 +241,7 @@ static void Application_receiveLedEvent(unsigned portBASE_TYPE EventKey,
 }
 
 
-void SysTick_Handler(void)
+void xPortSysTickHandler(void)
 {
 	App_ulTicks++;
 

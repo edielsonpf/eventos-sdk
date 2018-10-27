@@ -38,7 +38,7 @@ TEST_INCLUDE_DIRS += -I $(TEST_BASE_DIR)/nxp/lpc1769om13085/common/application_c
 
 LIB_INCLUDE_DIRS += -I $(LIB_BASE_DIR)/include 
 LIB_INCLUDE_DIRS += -I $(LIB_BASE_DIR)/include/private
-LIB_INCLUDE_DIRS += -I $(LIB_BASE_DIR)/EventOS/portable/device/NXP/LPC17xx/
+LIB_INCLUDE_DIRS += -I $(LIB_BASE_DIR)/EventOS/portable/GCC/ARM_CM3/
 
 #DRIVERS_INCLUDE_DIRS += -I $(DRIVERS_BASE_DIR)/LPC17xx_HAL_Drivers/inc 
 DRIVERS_INCLUDE_DIRS += -I $(DRIVERS_BASE_DIR)/cmsis/include
@@ -59,7 +59,7 @@ TEST_SRC_FILES += $(shell find $(TEST_BASE_DIR)/common/source/ -name '*.c')
 TEST_SRC_FILES += $(shell find $(TEST_BASE_DIR)/nxp/lpc1769om13085/common/application_code/ -name '*.c')
 
 LIB_SRC_FILES += $(shell find $(LIB_BASE_DIR)/EventOS/ -name '*.c')
-LIB_SRC_FILES += $(shell find $(LIB_BASE_DIR)/EventOS/portable/device/NXP/LPC17xx/ -name '*.c')
+LIB_SRC_FILES += $(shell find $(LIB_BASE_DIR)/EventOS/portable/GCC/ARM_CM3/ -name '*.c')
 LIB_SRC_FILES += $(shell find $(LIB_BASE_DIR)/log/ -name '*.c')
 
 #DRIVERS_SRC_FILES += $(shell find $(DRIVERS_BASE_DIR)/LPC17xx_HAL_Drivers/src -name '*.c')
@@ -163,7 +163,7 @@ post-build:
 
 ############################
 # Rule to build the files in the lib folder
-%.o: $(LIB_BASE_DIR)/EventOS/portable/device/NXP/LPC17xx/%.c
+%.o: $(LIB_BASE_DIR)/EventOS/portable/GCC/ARM_CM3/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU C Compiler'
 	$(CC) $(CC_OPTIONS) -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
