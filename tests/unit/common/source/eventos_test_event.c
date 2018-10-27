@@ -53,7 +53,7 @@ TEST_TEAR_DOWN( Full_EVENTOS_EVENT )
 TEST_GROUP_RUNNER( Full_EVENTOS_EVENT )
 {
 	/* Run publish before initialize structure. */
-	//RUN_TEST_CASE( Full_EVENTOS_EVENT, PublishEventBeforeRegister )
+	RUN_TEST_CASE( Full_EVENTOS_EVENT, PublishEventBeforeRegister )
 
     /* Run register tests. */
     RUN_TEST_CASE( Full_EVENTOS_EVENT, RegisterEventWithNullString );
@@ -111,22 +111,22 @@ TEST( Full_EVENTOS_EVENT, RegisterEventTwice )
 	/* End test. */
 }
 
-//
-//TEST( Full_EVENTOS_EVENT, PublishEventBeforeRegister )
-//{
-//    uint32_t xResult = pdFAIL;
-//
-//    /* Publish before initialize (before a first register) should fail. */
-//    xResult = xEvent_publish(TEST_event_pvHandler,
-//    						 TEST_event_key,
-//							 EVENT_PRIORITY_HIGH,
-//							 NULL,
-//							 0);
-//
-//    TEST_ASSERT_EQUAL_UINT32( xResult, pdFAIL );
-//    /* End test. */
-//
-//}
+
+TEST( Full_EVENTOS_EVENT, PublishEventBeforeRegister )
+{
+    uint32_t xResult = pdFAIL;
+
+    /* Publish before initialize (before a first register) should fail. */
+    xResult = xEvent_publish(TEST_event_pvHandler,
+    						 TEST_event_key,
+							 EVENT_PRIORITY_HIGH,
+							 NULL,
+							 0);
+
+    TEST_ASSERT_EQUAL_UINT32( xResult, pdFAIL );
+    /* End test. */
+
+}
 
 TEST( Full_EVENTOS_EVENT, PublishInvalidEvent )
 {
