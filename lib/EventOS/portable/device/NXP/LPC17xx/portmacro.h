@@ -80,7 +80,11 @@ extern void     vPortEnableInterrupts(void);
 #define pvPortMalloc( xSize ) malloc( xSize );
 #define vPortFree( pvMemory ) free( pvMemory );
 
-///* Critical section management. */
+
+/* Event function macros. */
+#define portEVENT_FUNCTION( vFunction, pvParameters ) void vFunction( void *pvParameters )
+
+/* Critical section management. */
 
 
 #ifdef __cplusplus
