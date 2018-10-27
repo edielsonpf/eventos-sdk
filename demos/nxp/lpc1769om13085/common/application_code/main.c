@@ -22,7 +22,6 @@
 #include "EventOS.h"
 #include "event.h"
 
-
 #include "application.h"
 
 int main()

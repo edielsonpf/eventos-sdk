@@ -254,3 +254,9 @@ void xPortSysTickHandler(void)
 					&App_ulTicks,			/* Content to be published */
 					sizeof(App_ulTicks));	/* Content size */
 }
+
+void vApplicationIdleHook(void)
+{
+	/* The ApplicationIdleHook function should never terminate */
+	while(1);
+}

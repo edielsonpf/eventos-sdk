@@ -38,7 +38,7 @@
 									<listOptionValue builtIn="false" value="../../../../../../drivers/cmsis/include"/>
 									<listOptionValue builtIn="false" value="../../../../../../drivers/bsp/EA-XPR-021"/>
 									<listOptionValue builtIn="false" value="../../../../../../drivers/cmsis/device/NXP/LPC17xx/include"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/EventOS/portable/device/NXP/LPC17xx"/>
+									<listOptionValue builtIn="false" value="../../../../../../lib/EventOS/portable/GCC/ARM_CM3"/>
 									<listOptionValue builtIn="false" value="../../../../../../lib/include"/>
 									<listOptionValue builtIn="false" value="../../../../../../lib/include/private"/>
 									<listOptionValue builtIn="false" value="../../../../../../tests/unit/common/include"/>
@@ -124,7 +124,7 @@
 									<listOptionValue builtIn="false" value="../../../../../../drivers/cmsis/include"/>
 									<listOptionValue builtIn="false" value="../../../../../../drivers/bsp/EA-XPR-021"/>
 									<listOptionValue builtIn="false" value="../../../../../../drivers/cmsis/device/NXP/LPC17xx/include"/>
-									<listOptionValue builtIn="false" value="../../../../../../lib/EventOS/portable/device/NXP/LPC17xx"/>
+									<listOptionValue builtIn="false" value="../../../../../../lib/EventOS/portable/GCC/ARM_CM3"/>
 									<listOptionValue builtIn="false" value="../../../../../../lib/include"/>
 									<listOptionValue builtIn="false" value="../../../../../../lib/include/private"/>
 									<listOptionValue builtIn="false" value="../../../../../../tests/unit/common/include"/>

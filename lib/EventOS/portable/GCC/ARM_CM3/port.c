@@ -73,7 +73,7 @@ void vPortEnterSleepMode( void )
 	LPC_SC->PCON = 0x00;
 	__WFI();
 #else
-	while(1);
+	vEvent_idleTask();
 #endif
 }
 
