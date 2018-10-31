@@ -78,6 +78,7 @@ signed portBASE_TYPE 	xEvent_publish (void* pvPublisher,
  * documented in EventOS.h
  *----------------------------------------------------------*/
 void 					vEvent_processEvents (void);
+void 					vEvent_idleTask (void);
 
 #ifdef __cplusplus
 }

@@ -16,11 +16,21 @@
 
  */
 
-#ifndef BOARD_H_
-#define BOARD_H_
+#include <stdlib.h>
+#include <stdio.h>
 
-#include "LPC17xx.h"
+#include "EventOS.h"
+#include "event.h"
 
-void Board_initialize(void);
+#include "application.h"
 
-#endif /* BOARD_H_ */
+int main()
+{
+	/* Check inside Application how events
+	 * are registered and managed*/
+	Application_initialize();
+
+	vEvent_startScheduler();
+	/*Should never reach here*/
+	return 0;
+}

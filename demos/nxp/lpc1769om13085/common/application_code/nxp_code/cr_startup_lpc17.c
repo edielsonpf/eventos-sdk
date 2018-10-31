@@ -117,8 +117,6 @@ void PLL1_IRQHandler(void) ALIAS(IntDefaultHandler);
 void USBActivity_IRQHandler(void) ALIAS(IntDefaultHandler);
 void CANActivity_IRQHandler(void) ALIAS(IntDefaultHandler);
 
-extern void xPortPendSVHandler(void);
-extern void xPortUart3Handler(void);
 
 //*****************************************************************************
 //
@@ -166,7 +164,7 @@ void (* const g_pfnVectors[])(void) = {
 	SVCall_Handler,                        // SVCall handler
 	DebugMon_Handler,						// Debug monitor handler
 	0,										// Reserved
-	xPortPendSVHandler,                     // The PendSV handler
+	PendSV_Handler,                     // The PendSV handler
 	SysTick_Handler,                    // The SysTick handler
 
 	// Chip Level - LPC17

@@ -20,6 +20,7 @@
 #include <NXP/crp.h>
 #include <stdio.h>
 
+#include "EventOS.h"
 #include "event.h"
 
 #include "application.h"
@@ -240,7 +241,7 @@ static void Application_receiveLedEvent(unsigned portBASE_TYPE EventKey,
 }
 
 
-void SysTick_Handler(void)
+void xPortSysTickHandler(void)
 {
 	App_ulTicks++;
 
@@ -252,4 +253,10 @@ void SysTick_Handler(void)
 					EVENT_PRIORITY_HIGH,	/* Event priority. Here will be published with high priority*/
 					&App_ulTicks,			/* Content to be published */
 					sizeof(App_ulTicks));	/* Content size */
+}
+
+void vApplicationIdleHook(void)
+{
+	/* The ApplicationIdleHook function should never terminate */
+	while(1);
 }

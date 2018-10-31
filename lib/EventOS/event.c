@@ -445,6 +445,35 @@ void vEvent_processEvents (void)
 	}
 }
 
+
+/*
+ * -----------------------------------------------------------
+ * The idle task.
+ * ----------------------------------------------------------
+ *
+ * The idle task is called if the MCU is nog configured to operate in
+ * sleep mode. In that case, the user can set its background operations
+ * is this function call.
+ *
+ *
+ */
+void vEvent_idleTask( void )
+{
+	#if ( configUSE_SLEEP_MODE == 0 )
+	{
+		extern void vApplicationIdleHook( void );
+
+		/* Call the user defined function from within the idle event.  This
+		allows the application designer to add background functionality, since.
+		the MCU will not operate in sleep mode.
+
+		vApplicationIdleHook() MUST CALL A BLOCKING FUNCTION. */
+
+		vApplicationIdleHook();
+	}
+	#endif
+}
+
 //======================================================================
 
 __PRIVATE_ void prvEvent_getProcessStamp( portTickType*  pulProcessStamp)

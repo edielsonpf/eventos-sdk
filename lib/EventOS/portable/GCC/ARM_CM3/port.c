@@ -49,9 +49,22 @@ portBASE_TYPE xPortStartScheduler( void )
 	/* Make PendSV the same priority as the kernel. */
 	*(portNVIC_SYSPRI2) |= portNVIC_PENDSV_PRI;
 
+#if (configUSE_SLEEP_MODE == 1)
 	/* Put the system in sleep mode. */
 	vPortEnterSleepMode();
+#else
 
+	/* If not using power sleep mode, we can call an user
+	 * function to handle an idle task or keep the code
+	 * executing */
+	vEvent_idleTask();
+
+	/* We should guarantee that the code will
+	 * never terminate if running in a microcontroller
+	 * and not running in power sleep mode or handled by
+	 * vEvent_idleTask */
+	while(1);
+#endif
 	/* Should not get here! */
 	return 0;
 }
@@ -67,14 +80,10 @@ portBASE_TYPE xPortStartScheduler( void )
 */
 void vPortEnterSleepMode( void )
 {
-#if (configUSE_SLEEP_MODE == 1)
 	/* Enter in sleep on exit mode. */
 	SCB->SCR = 0x2;
 	LPC_SC->PCON = 0x00;
 	__WFI();
-#else
-	while(1);
-#endif
 }
 
 /*-----------------------------------------------------------*/
@@ -111,6 +120,15 @@ void vPortEnableInterrupts(void)
 	__enable_irq();
 }
 
+
+/**
+	Handles PendSV interrupts and call function to process even queue.
+
+    @param void
+    @return void
+    @author gabriels
+    @date   25/09/2014
+*/
 void xPortPendSVHandler(void)
 {
 	vEvent_processEvents();

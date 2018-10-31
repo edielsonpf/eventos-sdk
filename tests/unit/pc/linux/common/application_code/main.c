@@ -16,42 +16,59 @@
 
  */
 
+/**
+ * @file main.c
+ * @brief Implements the main function.
+ */
+
+/* Standard includes. */
+#include <stdlib.h>
 #include <stdio.h>
 
+/* EventOS include. */
+#include "EventOS.h"
 #include "event.h"
-#include "board.h"
+
+/* Test runner includes. */
+#include "eventos_test_runner.h"
+
+/* Unity includes. */
+#include "unity.h"
 
 /*********************************************************
     private definition.
 *********************************************************/
 
 
-
 /*********************************************************
-    private operations
+    private prototypes.
 *********************************************************/
-
-static void Board_initSysTick(void);
 
 
 /*********************************************************
-    public implementations
+    private prototypes.
 *********************************************************/
 
-void Board_initialize(void)
+/**
+ * @brief Performs board and logging initializations,
+ * then starts the OS.
+ *
+ * @return This function should return.
+ */
+int main()
 {
-	Board_initSysTick();
+	vEvent_startScheduler();
+
+	/*Should never reach here*/
+	return 0;
 }
 
-/*********************************************************
-    private implementations
-*********************************************************/
-
-static void Board_initSysTick(void)
+void vApplicationIdleHook(void)
 {
-	// Setup Systick Timer to interrupt at 1 msec intervals
-	if (SysTick_Config(SystemCoreClock/1000))
-	{
-	    while (1);  // Capture error
-	}
+	/* Execute the tests*/
+	TEST_RUNNER_RunTests();
+
+	/* The ApplicationIdleHook function will terminate 
+         * to resturn the result of the tests  
+         */
 }

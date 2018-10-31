@@ -16,22 +16,13 @@
 
  */
 
-#include <stdlib.h>
-#include <stdio.h>
+#ifndef EVENTOS_TEST_RUNNER_CONFIG_H
+#define EVENTOS_TEST_RUNNER_CONFIG_H
 
-#include "EventOS.h"
-#include "event.h"
+#define testrunnerUNSUPPORTED                      0
+
+/* Supported tests. 0 = Disabled, 1 = Enabled */
+#define testrunnerFULL_EVENT_ENABLED                1
 
 
-#include "application.h"
-
-int main()
-{
-	/* Check inside Application how events
-	 * are registered and managed*/
-	Application_initialize();
-
-	vEvent_startScheduler();
-	/*Should never reach here*/
-	return 0;
-}
+#endif /* EVENTOS_TEST_RUNNER_CONFIG_H */
