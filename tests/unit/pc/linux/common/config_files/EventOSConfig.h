@@ -50,20 +50,4 @@
 /* The maximun number of events can be stored in the kernel. */
 #define configMAX_NUM_EVENTS				( 256 )
 
-/* Use the system definition, if there is one */
-#ifdef __NVIC_PRIO_BITS
-	#define configPRIO_BITS       __NVIC_PRIO_BITS
-#else
-	#define configPRIO_BITS       5        /* 32 priority levels */
-#endif
-
-/* The lowest priority. */
-#define configKERNEL_INTERRUPT_PRIORITY 	( 31 << (8 - configPRIO_BITS) )
-
-
-/* Definitions that map the FreeRTOS port interrupt handlers to their CMSIS
- * standard names. */
-#define xPortPendSVHandler            PendSV_Handler
-#define xPortSysTickHandler           SysTick_Handler
-
 #endif /* EVENTOSCONFIG_H_ */

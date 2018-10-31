@@ -1,10 +1,8 @@
 TARGET_EXEC ?= EventOS_unit_tests.out
 
-BUILD_DIR ?= ./build
-
 ############################
 # Directory definition
-PROJ_BASE_DIR = ../../../../..
+PROJ_BASE_DIR = ../../../..
 TEST_BASE_DIR = $(PROJ_BASE_DIR)/tests/unit
 LIB_BASE_DIR = $(PROJ_BASE_DIR)/lib
 DRIVERS_BASE_DIR = $(PROJ_BASE_DIR)/drivers
@@ -28,34 +26,127 @@ SRCS += $(LIB_SRC_FILES)
 SRCS += $(DRIVERS_SRC_FILES)
 SRCS += $(THIRD_PARTY_SRC_FILES)
 
-OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+
+OBJS += \
+	main.o \
+	eventos_test_event.o \
+	eventos_test_framework.o \
+	eventos_test_runner.o \
+	event.o \
+	list.o \
+	port.o \
+	eventos_log.o \
+	unity.o \
+	unity_fixture.o 
+
+#OBJS := $(addsuffix .o,$(basename $(SRCS)))
+
 DEPS := $(OBJS:.o=.d)
 
-INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+
+
+############################
+# Include directory definition
+TEST_INCLUDE_DIRS += $(TEST_BASE_DIR)/common/include
+TEST_INCLUDE_DIRS += $(TEST_BASE_DIR)/pc/linux/common/config_files
+TEST_INCLUDE_DIRS += $(TEST_BASE_DIR)/pc/linux/common/application_code
+
+LIB_INCLUDE_DIRS += $(LIB_BASE_DIR)/include 
+LIB_INCLUDE_DIRS += $(LIB_BASE_DIR)/include/private
+LIB_INCLUDE_DIRS += $(LIB_BASE_DIR)/EventOS/portable/GCC/linux_simulator/
+
+DRIVERS_INCLUDE_DIRS += $(DRIVERS_BASE_DIR)/cmsis/include
+DRIVERS_INCLUDE_DIRS += $(DRIVERS_BASE_DIR)/cmsis/device/NXP/LPC17xx/include 
+
+THIRD_PARTY_LIB_INCLUDE_DIRS += -I $(THIRD_PARTY_LIB_BASE_DIR)/unity/src 
+THIRD_PARTY_LIB_INCLUDE_DIRS += -I $(THIRD_PARTY_LIB_BASE_DIR)/unity/extras/fixture/src 
+
+#Aggregate all include directories
+INC_DIRS += $(TEST_INCLUDE_DIRS)
+INC_DIRS += $(LIB_INCLUDE_DIRS)
+INC_DIRS += $(DRIVERS_INCLUDE_DIRS)
+INC_DIRS += $(THIRD_PARTY_LIB_INCLUDE_DIRS)
+
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 
-all: $(EXE)
-	@echo "*** finished building ***"
-
-$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+$(TARGET_EXEC): $(OBJS)
 	@echo 'Building target: $@'
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 # c source
-$(BUILD_DIR)/%.c.o: %.c
-    @echo 'Building file: $<'
-	$(MKDIR_P) $(dir $@)
+############################
+# Rule to build the files in the source folder
+%.o: $(TEST_BASE_DIR)/pc/linux/common/application_code/%.c
+	@echo 'Building file: $<'
 	@echo 'Invoking: MCU C Compiler'
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 	@echo 'Finished building: $<'
 	@echo ' '
 	
+############################
+# Rule to build the files in the source folder
+%.o: $(TEST_BASE_DIR)/common/source/%.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: MCU C Compiler'
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	@echo 'Finished building: $<'
+	@echo ' '
+
+
+############################
+# Rule to build the files in the lib folder
+%.o: $(LIB_BASE_DIR)/EventOS/%.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: MCU C Compiler'
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	@echo 'Finished building: $<'
+	@echo ' '
+
+############################
+# Rule to build the files in the lib folder
+%.o: $(LIB_BASE_DIR)/EventOS/portable/GCC/linux_simulator/%.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: MCU C Compiler'
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	@echo 'Finished building: $<'
+	@echo ' '	
+	
+############################
+# Rule to build the files in the lib folder
+%.o: $(LIB_BASE_DIR)/log/%.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: MCU C Compiler'
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	@echo 'Finished building: $<'
+	@echo ' '	
+
+############################
+# Rule to build the files in the lib folder
+%.o: $(THIRD_PARTY_LIB_BASE_DIR)/unity/extras/fixture/src/%.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: MCU C Compiler'
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	@echo 'Finished building: $<'
+	@echo ' '	
+
+############################
+# Rule to build the files in the lib folder
+%.o: $(THIRD_PARTY_LIB_BASE_DIR)/unity/src/%.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: MCU C Compiler'
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	@echo 'Finished building: $<'
+	@echo ' '	
+
+
+
 .PHONY: clean
 
 clean:
-	$(RM) -r $(BUILD_DIR)
+	$(RM) $(TARGET_EXEC) $(OBJS) $(DEPS) $(EXE)
+	-@echo ' '
 
 -include $(DEPS)
 

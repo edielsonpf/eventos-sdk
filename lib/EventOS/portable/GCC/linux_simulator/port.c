@@ -17,7 +17,7 @@
  */
 
 /*-----------------------------------------------------------
- * Implementation of functions defined in port.h for the ARM CM3 port.
+ * Implementation of functions defined in port.h for the Linux port.
  *----------------------------------------------------------*/
 #include <stdio.h>
 
@@ -25,18 +25,24 @@
 #include "EventOS.h"
 #include "event.h"
 
-/* Portable includes ------------------------------------------------------------------- */
-#include "LPC17xx.h"
 
-/* Constants required to manipulate the NVIC. */
-#define portNVIC_SYSPRI2			( ( volatile unsigned long *) 0xe000ed20 )
-#define portNVIC_INT_CTRL			( ( volatile unsigned long *) 0xe000ed04 )
-#define portNVIC_PENDSVSET			0x10000000
-#define portNVIC_PENDSV_PRI			( ( ( unsigned long ) configKERNEL_INTERRUPT_PRIORITY ) << 16 )
+/* Port specif includes*/
+#include<wait.h> 
+#include<signal.h> 
 
 /*
- * Exception handlers.
+ * The signal id used for simulating interruptions.
  */
+#define	portUSER_SIGNAL	SIGUSR1
+
+/* Simulated interrupts using signals.  This is the process pid which is
+ * used togeneate asimulatd interruption. */
+static volatile uint32_t ulProcessPid = 0UL;
+
+/* Kill calls passing portUSER_SIGNAL will generate an simulated interrupt
+ * which will be handled by this function. We a reusing it to simulate
+ * PendSV interruption calls on ARM */
+static void prvInterruptionHandler(int SignalId); 
 
 
 /*-----------------------------------------------------------*/
@@ -46,8 +52,10 @@
  */
 portBASE_TYPE xPortStartScheduler( void )
 {
-	/* Make PendSV the same priority as the kernel. */
-	*(portNVIC_SYSPRI2) |= portNVIC_PENDSV_PRI;
+	/* Extra code to configure simulated interruptions. */	
+	ulProcessPid = getpid();
+    
+    	signal(portUSER_SIGNAL, prvInterruptionHandler); 	
 
 #if (configUSE_SLEEP_MODE == 1)
 	/* Put the system in sleep mode. */
@@ -63,7 +71,7 @@ portBASE_TYPE xPortStartScheduler( void )
 	 * never terminate if running in a microcontroller
 	 * and not running in power sleep mode or handled by
 	 * vEvent_idleTask */
-	while(1);
+	//while(1); // Not applicable for Linux simulation since the unit test must be finished.
 #endif
 	/* Should not get here! */
 	return 0;
@@ -81,9 +89,7 @@ portBASE_TYPE xPortStartScheduler( void )
 void vPortEnterSleepMode( void )
 {
 	/* Enter in sleep on exit mode. */
-	SCB->SCR = 0x2;
-	LPC_SC->PCON = 0x00;
-	__WFI();
+	/* Do not implement */
 }
 
 /*-----------------------------------------------------------*/
@@ -91,7 +97,7 @@ void vPortEnterSleepMode( void )
 void vPortGenerateEvent( void )
 {
 	/*Generate an interrupt for treating a published event*/
-	*(portNVIC_INT_CTRL) = portNVIC_PENDSVSET;
+	kill(ulProcessPid, portUSER_SIGNAL); 	
 }
 
 /**
@@ -104,7 +110,10 @@ void vPortGenerateEvent( void )
 */
 void vPortDisableInterrupts(void)
 {
-	__disable_irq();
+	/* That resets the signal handler back to whatever 
+         * the default behavior was for that signal 
+         */
+       signal(portUSER_SIGNAL, SIG_DFL);
 }
 
 /**
@@ -117,7 +126,7 @@ void vPortDisableInterrupts(void)
 */
 void vPortEnableInterrupts(void)
 {
-	__enable_irq();
+	signal(portUSER_SIGNAL, prvInterruptionHandler);
 }
 
 
@@ -133,3 +142,13 @@ void xPortPendSVHandler(void)
 {
 	vEvent_processEvents();
 }
+
+
+
+static void prvInterruptionHandler(int SignalId) 
+{ 
+    if( SignalId == portUSER_SIGNAL )
+    {
+	xPortPendSVHandler();
+    } 
+} 

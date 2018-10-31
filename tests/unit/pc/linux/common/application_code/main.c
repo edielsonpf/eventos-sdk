@@ -68,6 +68,7 @@ void vApplicationIdleHook(void)
 	/* Execute the tests*/
 	TEST_RUNNER_RunTests();
 
-	/* The ApplicationIdleHook function should never terminate */
-	while(1);
+	/* The ApplicationIdleHook function will terminate 
+         * to resturn the result of the tests  
+         */
 }
