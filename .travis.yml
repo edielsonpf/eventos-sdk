@@ -20,7 +20,7 @@ addons:
     notification_email: nobody@gmail.com
     build_command_prepend: "cd tests/unit/pc/linux/"
     build_command: "make"
-    branch_pattern: master
+    branch_pattern: coverity_scan
 
 
 script:
