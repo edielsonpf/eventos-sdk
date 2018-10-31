@@ -1,6 +1,6 @@
 language: c
 
-compiler: arm-none-eabi-gcc
+compiler: gcc
 
 # Coverity configuration.
 
@@ -23,31 +23,21 @@ addons:
     branch_pattern: master
 
 
-install:
-
-  - mkdir -p "${HOME}"/opt
-  
-  - wget https://github.com/gnu-mcu-eclipse/arm-none-eabi-gcc/releases/download/v7.3.1-1.1/gnu-mcu-eclipse-arm-none-eabi-gcc-7.3.1-1.1-20180724-0637-centos64.tgz -O /tmp/gnu-mcu-eclipse-arm-none-eabi-gcc-7.3.1-1.1.tgz
-  
-  - tar xf /tmp/gnu-mcu-eclipse-arm-none-eabi-gcc-7.3.1-1.1.tgz  -C "${HOME}"/opt
-
-  - chmod -R -w "${HOME}"/opt/gnu-mcu-eclipse/arm-none-eabi-gcc/7.3.1-1.1-20180724-0637
-  
- # Export the path and check if gcc has been installed successfully
- 
-  - export PATH=$PATH:"${HOME}"/opt/gnu-mcu-eclipse/arm-none-eabi-gcc/7.3.1-1.1-20180724-0637/bin/
-  
-  - arm-none-eabi-gcc --version
-  
 script:
 
-  # Build the unit tests.
+  # Build the ARM unit tests.
 
   - cd tests/unit/nxp/lpc1769om13085/makefile
 
   - make all
 
+  # Build the Linux unit tests.
 
+  - cd tests/unit/pc/linux/
+
+  - make
+	
   # Execute unit tests.
-
+ 
+  - ./EventOS_unit_tests.out 	
   
