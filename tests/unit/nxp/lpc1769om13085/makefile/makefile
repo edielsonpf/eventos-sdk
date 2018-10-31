@@ -77,7 +77,6 @@ C_SRCS += $(THIRD_PARTY_SRC_FILES)
 
 OBJS += \
 	main.o \
-	board.o \
 	core_cm3.o \
 	system_LPC17xx.o \
 	cr_startup_lpc17.o \
