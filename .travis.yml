@@ -16,26 +16,14 @@ addons:
 
     notification_email: nobody@gmail.com
 
-    build_command_prepend: "cd tests/unit/nxp/lpc1769om13085/makefile"
+    build_command_prepend: "cd tests/unit/pc/linux/"
 
-    build_command: "make all"
+    build_command: "make"
 
     branch_pattern: master
 
 
 script:
-
-  # Build the ARM unit tests.
-
-  - cd tests/unit/nxp/lpc1769om13085/makefile
-
-  - make all
-
-  # Build the Linux unit tests.
-
-  - cd tests/unit/pc/linux/
-
-  - make
 
   # Execute unit tests.
  
