@@ -1,5 +1,5 @@
 /*
-    EventOS V1.0 - Copyright (C) 2014 Edielson Prevato Frigieri.
+    EventOS V1.2.0 - Copyright (C) 2014 Edielson Prevato Frigieri.
 
        This file is part of the EventOS distribution.
 
