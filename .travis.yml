@@ -1,0 +1,37 @@
+language: c
+
+compiler: gcc
+
+# Coverity configuration.
+
+addons:
+
+  coverity_scan:
+
+    project:
+
+      name: "eventos-sdk"
+
+      description: "EventOS - Event-driven Operating Systems "
+
+    notification_email: nobody@gmail.com
+
+    build_command_prepend: "cd tests/unit/pc/linux/"
+
+    build_command: "make"
+
+    branch_pattern: master
+
+
+script:
+
+  # Build the Linux unit tests.
+
+  - cd tests/unit/pc/linux/
+
+  - make
+
+  # Execute unit tests.
+ 
+  - ./EventOS_unit_tests.out 	
+  
