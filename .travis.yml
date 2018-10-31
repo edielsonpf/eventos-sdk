@@ -21,7 +21,6 @@ addons:
     build_command_prepend: "cd tests/unit/pc/linux/"
     build_command: "make"
     branch_pattern: master
-	
 
 
 script:
@@ -29,5 +28,5 @@ script:
   - cd tests/unit/pc/linux/
   - make
   # Execute unit tests.
-  - ./EventOS_unit_tests.out 	
+  - ./EventOS_unit_tests.out 
   
