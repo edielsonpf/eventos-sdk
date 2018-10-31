@@ -36,7 +36,7 @@ script:
   - cd tests/unit/pc/linux/
 
   - make
-	
+
   # Execute unit tests.
  
   - ./EventOS_unit_tests.out 	
