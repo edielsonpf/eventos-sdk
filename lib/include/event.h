@@ -19,7 +19,6 @@
 #define EVENT_H_
 
 #include "portable.h"
-#include "list.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,15 +28,25 @@ extern "C" {
  * MACROS AND DEFINITIONS
  *----------------------------------------------------------*/
 
+#define evtKERNEL_VERSION_NUMBER "V2.0.0"
+
+#define evtKERNEL_VERSION_MAJOR 2
+
+#define evtKERNEL_VERSION_MINOR 0
+
+#define evtKERNEL_VERSION_BUILD 0
+
 /**
  * event.h
  *
- * Type by which event handlers are referenced.  For example, a call to Event_subscribe
- * returns (via a pointer parameter) an pEventHandle variable that can then
- * be used as a parameter to vEvent_unsubscribe to unsubscribe the handler.
+ * Type by which event handlers are referenced.  For example, a call to Event_register
+ * returns (via a pointer parameter) a EventHandle_t variable that can then be used
+ * as a parameter to vEvent_unregister to unregister the event or vEvent_publish to
+ * publish a new event.
  *
  */
-typedef void* pvEventHandle;
+typedef void* EventHandle_t;
+
 
 typedef enum enu_Priorities
 {
@@ -50,27 +59,27 @@ typedef enum enu_Priorities
 }tenuEventPriority;
 
 /* Defines the prototype to which event handler functions must conform. */
-typedef void (*pdEVENT_HANDLER_FUNCTION)( unsigned portBASE_TYPE, void*, void*, unsigned portBASE_TYPE );
+typedef void (*EventHandlerFunction_t)( EventHandle_t, void*, void*, uint32_t );
 
 /*********************************************************
     Public Operations
 *********************************************************/
 
-void 					vEvent_startScheduler( void );
+void 			vEvent_startScheduler( void );
 
-signed portBASE_TYPE 	xEvent_register (void* pvEventOwner,
-										 portCHAR* pszEventName,
-										 unsigned portBASE_TYPE* ulEventKey);
+BaseType_t 		xEvent_register (void* pvEventOwner,
+								 const char* pszEventName,
+								 EventHandle_t* pxRegisteredEvent);
 
-signed portBASE_TYPE 	xEvent_subscribe (pdEVENT_HANDLER_FUNCTION pFunction,
-										  unsigned portBASE_TYPE ulEventKey,
-										  void* pvSubscriber);
+BaseType_t 		xEvent_subscribe (void* pvEventSubscriber,
+								  EventHandle_t xEventToSubscribe,
+								  EventHandlerFunction_t pFunctionCode);
 
-signed portBASE_TYPE 	xEvent_publish (void* pvPublisher,
-										unsigned portBASE_TYPE ulEventKey,
-										unsigned portBASE_TYPE ulPriority,
-										void* pvPayload,
-										unsigned portBASE_TYPE ulPayloadSize);
+BaseType_t 		xEvent_publish (void* pvEventPublisher,
+								EventHandle_t xEventToPublish,
+								UBaseType_t ulPriority,
+								void* pvPayload,
+								uint32_t ulPayloadSize );
 
 
 /*-----------------------------------------------------------

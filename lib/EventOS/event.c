@@ -23,7 +23,7 @@
 
 #include "EventOS.h"
 #include "event.h"
-
+#include "list.h"
 /*********************************************************
     private constants.
 *********************************************************/
@@ -38,14 +38,14 @@
  */
 typedef struct evtEventControlBlock
 {
-	xListNode				xEventListNode;						/*< List node used to place the event in the list. */
-	portBASE_TYPE			ulEventPriority;					/*< The priority of the event where 0 is the lowest priority. */
-	portBASE_TYPE			ulEventKey;
+	xListNode_t				xEventListNode;						/*< List node used to place the event in the list. */
+	UBaseType_t				uxEventPriority;					/*< The priority of the event where 0 is the lowest priority. */
+	EventHandle_t			xEventHandle;
 
+	xList_t*				pxSubscriberList;					/*< Pointer to the list of event subscribers>*/
 
-	xList*					pxSubscriberList;					/*< Pointer to the list of event subscribers>*/
-	void*					pvPayload;
-	portBASE_TYPE			ulPayloadSize;
+	void*					pvEventContent;
+	uint32_t				ulContentSize;
 } evtECB;
 
 /*
@@ -54,11 +54,11 @@ typedef struct evtEventControlBlock
  */
 typedef struct evtSubscriber
 {
-	void* pvHandler;
-	unsigned portBASE_TYPE			ulEventKey;
-	pdEVENT_HANDLER_FUNCTION 		pdEventHandlerFunction;
+	void* 						pvSubscriberHandle;
+	EventHandle_t				xEventHandle;
+	EventHandlerFunction_t 		pvEventHandlerFunction;
 
-	xListNode						xSubscriberListNode;						/*< List node used to place the event in the list. */
+	xListNode_t					xSubscriberListNode;						/*< List node used to place the event in the list. */
 }evtSCB;
 
 
@@ -69,17 +69,16 @@ typedef struct evtSubscriber
 typedef struct evtEventAdmin
 {
 	void* 					pvEventOwner;
-	unsigned portBASE_TYPE	ulEventKey;
-	portCHAR				szEventName[configMAX_EVENT_NAME_LEN];
-	portBASE_TYPE			bInUse;
+	char					szEventName[configMAX_EVENT_NAME_LEN];
+	BaseType_t				bInUse;
 
-	xList 					xSubscriberList;						/*< List of subscribers for a specific event. */
-	unsigned portBASE_TYPE 	ulCurrentNumberOfSubscribers;
+	xList_t					xSubscriberList;						/*< List of subscribers for a specific event. */
+	UBaseType_t			 	ulCurrentNumberOfSubscribers;
 
 }evtEventAdmin_t;
 
 /* Lists for events and event handlers. --------------------*/
-__PRIVATE_ xList pxEventsLists[ EVENT_PRIORITY_LAST ];	/*< Prioritized events. */
+__PRIVATE_ xList_t pxEventsLists[ EVENT_PRIORITY_LAST ];	/*< Prioritized events. */
 __PRIVATE_ evtEventAdmin_t pxEventAdminList[ configMAX_NUM_EVENTS ];	/*< Event administration . */
 
 
@@ -91,9 +90,9 @@ __PRIVATE_ evtECB* volatile pxCurrentECB = NULL;
 /*********************************************************
     private variables.
 *********************************************************/
-__PRIVATE_ volatile unsigned portBASE_TYPE evt_ulCurrentNumberOfPubEvents 	= ( unsigned portBASE_TYPE ) 0;
-__PRIVATE_ volatile unsigned portBASE_TYPE evt_ulCurrentNumberOfRegEvents 	= ( unsigned portBASE_TYPE ) 0;
-__PRIVATE_ volatile unsigned portBASE_TYPE evt_ulProcessStamp = ( unsigned portBASE_TYPE ) 0;
+__PRIVATE_ volatile UBaseType_t evt_ulCurrentNumberOfPubEvents 	= ( UBaseType_t ) 0;
+__PRIVATE_ volatile UBaseType_t evt_ulCurrentNumberOfRegEvents 	= ( UBaseType_t ) 0;
+__PRIVATE_ volatile TickType_t evt_ulProcessStamp = ( TickType_t ) 0;
 
 
 /*********************************************************
@@ -103,24 +102,21 @@ __PRIVATE_ volatile unsigned portBASE_TYPE evt_ulProcessStamp = ( unsigned portB
 /*
  * Check if a event key is valid in the system.
  */
-#define prvEvent_checkEventKey( ulEventKey ) (pxEventAdminList[ulEventKey].bInUse ) \
+#define prvEvent_checkEventKey( uxNewEventKey ) ( pxEventAdminList[uxNewEventKey].bInUse ) \
 
 /*
  * Check if a event key is valid and belongs to the respective publisher.
  */
-#define prvEvent_validateEventPublisher( pvPublisher, ulEventKey ) ( (pxEventAdminList[ulEventKey].bInUse ) && \
-		(pxEventAdminList[ulEventKey].pvEventOwner == pvPublisher) ) \
-
-
+#define prvEvent_validateEventPublisher( pvPublisher, xEventToPublish ) ( ( ( (evtEventAdmin_t*) xEventToPublish )->bInUse ) && ( ( ( (evtEventAdmin_t*) xEventToPublish )->pvEventOwner ) == pvPublisher) )
 
 /*
  * Place the subscriber represented by pxSCB into the appropriate event queue for.
  * It is inserted at the head of the list.
  */
-#define prvEvent_addSubscriberToList( pxSCB ) \
+#define prvEvent_addSubscriberToList( pxSCB, xEventToSubscribe ) \
 {\
-	vList_insertHead( ( xList* ) &( pxEventAdminList[pxSCB->ulEventKey].xSubscriberList), &( pxSCB->xSubscriberListNode ) ); \
-	pxEventAdminList[ulEventKey].ulCurrentNumberOfSubscribers++; \
+	vList_insertHead( ( xList_t* ) &( ( (evtEventAdmin_t*) xEventToSubscribe )->xSubscriberList), &( pxSCB->xSubscriberListNode ) ); \
+	( (evtEventAdmin_t*) xEventToSubscribe )->ulCurrentNumberOfSubscribers++; \
 }\
 
 /*
@@ -129,7 +125,7 @@ __PRIVATE_ volatile unsigned portBASE_TYPE evt_ulProcessStamp = ( unsigned portB
  */
 #define prvEvent_addEventToList( pxECB ) \
 { \
-	vList_insert( ( xList* ) &( pxEventsLists[ pxECB->ulEventPriority ] ), &( pxECB->xEventListNode ) );	\
+	vList_insert( ( xList_t* ) &( pxEventsLists[ pxECB->uxEventPriority ] ), &( pxECB->xEventListNode ) );	\
 	evt_ulCurrentNumberOfPubEvents++; \
 }\
 
@@ -149,23 +145,22 @@ __PRIVATE_ void prvEvent_deleteECB( evtECB* pxECB );
 __PRIVATE_ void prvEvent_initializeEventLists( void );
 __PRIVATE_ void prvEvent_initializeEventAdmin( void );
 __PRIVATE_ void prvEvent_initializeSCBVariables( evtSCB* pxSCB,
-												 pdEVENT_HANDLER_FUNCTION pFunction,
-												 unsigned portBASE_TYPE	ulEventKey,
+												 EventHandlerFunction_t pFunction,
+												 EventHandle_t xEventHandle,
 												 void* pvSubscriber);
 __PRIVATE_ void prvEvent_initializeECBVariables( evtECB* pxECB,
-												 unsigned portBASE_TYPE ulEventKey,
-												 unsigned portBASE_TYPE ulEventPriority);
+												 EventHandle_t xEventHandle,
+												 UBaseType_t uxEventPriority);
 __PRIVATE_ void prvEvent_incrementProcessStamp( void );
-__PRIVATE_ void prvEvent_getProcessStamp( portTickType*  pulProcessStamp);
+__PRIVATE_ TickType_t prxEvent_getProcessStamp( void );
 __PRIVATE_ void prvEvent_updateLifeTime (void);
 __PRIVATE_ evtECB* prvEvent_getNextEvent(void);
 __PRIVATE_ void prvEvent_increaseEventPriority(evtECB* pxECB);
 __PRIVATE_ void prvEvent_terminateEvent( evtECB* pxECB );
 __PRIVATE_ void prvEvent_deleteECB( evtECB* pxECB );
-__PRIVATE_ void prvEvent_generateEventKey(void* pvEventOwner,
-										  portCHAR* szEventName,
-										  unsigned portBASE_TYPE* ulEventKey);
-
+__PRIVATE_ BaseType_t prxEvent_generateEventKey(void* pvEventOwner,
+										  	  	const char* szEventName);
+__PRIVATE_ BaseType_t  prxEvent_validateEventHandle(EventHandle_t xEvent);
 /*********************************************************
     Operations implementation
 *********************************************************/
@@ -193,18 +188,18 @@ void vEvent_startScheduler( void )
 }
 
 /*
-	Event subscribe. Function subscribes a event handler to receive notifications about as specific event
+	Event register. Function to register new events to the system.
 
-    @param pvFunction: function to be called for event notification
-    	   ulEventKey: type of event to be notified
-    	   pvSubscriber: event handler object
-    @return void
-    @author Edielson
-    @date   15/09/2017
+    @param pvEventOwner: Event owner handler object
+    	   pszEventName: string with event name identification
+    	   pxRegisteredEvent: event handler object
+
+    @return BaseType_t
+
 */
-signed portBASE_TYPE xEvent_register (	void* pvEventOwner,
-										portCHAR* szEventName,
-										unsigned portBASE_TYPE* pulEventKey)
+BaseType_t 		xEvent_register (void* pvEventOwner,
+								 const char* szEventName,
+								 EventHandle_t* pxRegisteredEvent)
 {
 	if(szEventName == NULL) return pdFAIL;
 	if(pvEventOwner == NULL) return pdFAIL;
@@ -212,7 +207,7 @@ signed portBASE_TYPE xEvent_register (	void* pvEventOwner,
 	if(strlen(szEventName) < 2) return pdFAIL; /* event name should have length greater then 1 */
 
 	signed portBASE_TYPE xReturn = pdTRUE;
-	unsigned portBASE_TYPE ulNewKey = 0;
+	UBaseType_t ulNewKey = 0;
 	portBASE_TYPE x = 0;
 
 	portDISABLE_INTERRUPTS();
@@ -235,7 +230,7 @@ signed portBASE_TYPE xEvent_register (	void* pvEventOwner,
 		 * the pvOwner can be used to make the key
 		 * more specific or even create any security key.
 		 */
-		prvEvent_generateEventKey(pvEventOwner, szEventName, &ulNewKey);
+		ulNewKey = prxEvent_generateEventKey(pvEventOwner, szEventName);
 
 		/*
 		 * We have to check if the event administration is already in use
@@ -245,7 +240,6 @@ signed portBASE_TYPE xEvent_register (	void* pvEventOwner,
 		if(prvEvent_checkEventKey(ulNewKey) == pdFALSE)
 		{
 			pxEventAdminList[ulNewKey].bInUse = pdTRUE;
-			pxEventAdminList[ulNewKey].ulEventKey = ulNewKey;
 
 			/* Store the task name in the TCB. */
 			for( x = ( portBASE_TYPE ) 0; x < ( portBASE_TYPE ) configMAX_EVENT_NAME_LEN; x++ )
@@ -270,17 +264,23 @@ signed portBASE_TYPE xEvent_register (	void* pvEventOwner,
 			pxEventAdminList[ulNewKey].ulCurrentNumberOfSubscribers = 0;
 
 			/*
-			 * return the new event key to the user.
+			 * return the new event handle to the user.
 			 */
-			*pulEventKey = ulNewKey;
+			if(( void * ) pxRegisteredEvent != NULL)
+			{
+				*pxRegisteredEvent = (EventHandle_t)&(pxEventAdminList[ulNewKey]);
+			}
 		}
 		else
 		{
 			/* For now, we consider just one event admin per key.
-			 * Further version can use a linked list of event
-			 * admin per key. */
+			 * Further version can use a linked list of events
+			 * per key. */
+			if(( void * ) pxRegisteredEvent != NULL)
+			{
+				*pxRegisteredEvent = NULL;
+			}
 
-			*pulEventKey = 0;
 			xReturn = pdFAIL;
 		}
 	}
@@ -290,21 +290,22 @@ signed portBASE_TYPE xEvent_register (	void* pvEventOwner,
 }
 
 /*
-	Event subscribe. Function subscribes a event handler to receive notifications about as specific event
+	Event subscribe. Function subscribes a event handler to receive notifications
+	about as specific event
 
-    @param pvFunction: function to be called for event notification
-    	   ulEventKey: type of event to be notified
-    	   pvSubscriber: event handler object
-    @return void
-    @author Edielson
-    @date   15/09/2017
+    @param  pvSubscriber: subscriber handler object
+    		xEventToSubscribe: event handle to be subscribed
+    		pvFunction: function to be called for event notification
+
+    @return BaseType_t
+
 */
-signed portBASE_TYPE xEvent_subscribe (	pdEVENT_HANDLER_FUNCTION pFunction,
-										unsigned portBASE_TYPE ulEventKey,
-										void* pvSubscriber)
+BaseType_t 		xEvent_subscribe (void* pvEventSubscriber,
+								  EventHandle_t xEventToSubscribe,
+								  EventHandlerFunction_t pFunctionCode)
 {
-	if (pFunction == NULL) 		return pdFAIL;
-	if (pvSubscriber == NULL) 	return pdFAIL;
+	if (pFunctionCode == NULL) 		return pdFAIL;
+	if (pvEventSubscriber == NULL) 	return pdFAIL;
 	if (evt_ulCurrentNumberOfRegEvents == 0) return pdFAIL;
 
 	signed portBASE_TYPE xReturn = pdTRUE;
@@ -312,21 +313,21 @@ signed portBASE_TYPE xEvent_subscribe (	pdEVENT_HANDLER_FUNCTION pFunction,
 	/*
 	 * Check if the event key is already registered in the system
 	 */
-	if( prvEvent_checkEventKey(ulEventKey) == pdTRUE )
+	if( prxEvent_validateEventHandle(xEventToSubscribe) == pdTRUE )
 	{
-		evtSCB* pxNewSubscriber = (evtSCB*)pvPortMalloc(sizeof(evtSCB));
+		evtSCB* pxNewSubscriberBlock = (evtSCB*)pvPortMalloc(sizeof(evtSCB));
 
-		if(pxNewSubscriber)
+		if(pxNewSubscriberBlock)
 		{
 			/*Initializing variables*/
-			prvEvent_initializeSCBVariables(pxNewSubscriber,
-											pFunction,
-											ulEventKey,
-											pvSubscriber);
+			prvEvent_initializeSCBVariables(pxNewSubscriberBlock,
+											pFunctionCode,
+											xEventToSubscribe,
+											pvEventSubscriber);
 
 			portDISABLE_INTERRUPTS();
 			{
-				prvEvent_addSubscriberToList( pxNewSubscriber );
+				prvEvent_addSubscriberToList( pxNewSubscriberBlock, xEventToSubscribe );
 
 				xReturn = pdPASS;
 			}
@@ -340,50 +341,53 @@ signed portBASE_TYPE xEvent_subscribe (	pdEVENT_HANDLER_FUNCTION pFunction,
 /*
 	EventOS publish. Publishing events in a particular queue according to its priority
 
-    @param - void* pxEventSlot
-    @return void
-    @author samuel/amanda
-    @date   22/09/2014
+    @param  pvEventPublisher: publisher handler object
+    		xEventToPublish: event handle to be published
+    		uxPriority: priority to be published
+    		pvEventContent: pointer to event content
+    		ulContentSize: content size
+
+	@return BaseType_t
 */
-
-signed portBASE_TYPE xEvent_publish (void* pvPublisher,
-									 unsigned portBASE_TYPE ulEventKey,
-									 unsigned portBASE_TYPE ulPriority,
-									 void* pvPayload,
-									 unsigned portBASE_TYPE ulPayloadSize)
+BaseType_t 		xEvent_publish (void* pvEventPublisher,
+								EventHandle_t xEventToPublish,
+								UBaseType_t uxPriority,
+								void* pvEventContent,
+								uint32_t ulContentSize )
 {
-	if (ulPriority >= EVENT_PRIORITY_LAST) return pdFAIL;
+	if (uxPriority >= EVENT_PRIORITY_LAST) return pdFAIL;
 	if (evt_ulCurrentNumberOfRegEvents == 0) return pdFAIL;
+	if ((void*) xEventToPublish == NULL) return pdFAIL;
 
-	portBASE_TYPE xStatus = pdPASS;
-	evtECB* pxNewEvent = NULL;
+	BaseType_t xStatus = pdPASS;
+	evtECB* pxNewEventBlock = NULL;
 
-	if( prvEvent_validateEventPublisher(pvPublisher, ulEventKey) )
+	if( prvEvent_validateEventPublisher(pvEventPublisher, xEventToPublish) == pdTRUE)
 	{
-		pxNewEvent = (evtECB*)pvPortMalloc(sizeof(evtECB));
-		if(pxNewEvent)
+		pxNewEventBlock = (evtECB*)pvPortMalloc(sizeof(evtECB));
+		if(pxNewEventBlock)
 		{
-			prvEvent_initializeECBVariables(pxNewEvent,
-											ulEventKey,
-											ulPriority);
+			prvEvent_initializeECBVariables(pxNewEventBlock,
+											xEventToPublish,
+											uxPriority);
 
-			/* Initialize the payload container in the event block */
-			if(ulPayloadSize > 0)
+			/* Initialize the content container in the event block */
+			if(ulContentSize > 0)
 			{
-				/* Check if payload pointer is not NULL*/
-				if(pvPayload)
+				/* Check if content pointer is not NULL*/
+				if(pvEventContent)
 				{
-					pxNewEvent->pvPayload = pvPortMalloc(ulPayloadSize);
-					if(pxNewEvent->pvPayload)
+					pxNewEventBlock->pvEventContent = pvPortMalloc(ulContentSize);
+					if(pxNewEventBlock->pvEventContent)
 					{
-						memcpy(pxNewEvent->pvPayload, pvPayload, ulPayloadSize);
-						pxNewEvent->ulPayloadSize = ulPayloadSize;
+						memcpy(pxNewEventBlock->pvEventContent, pvEventContent, ulContentSize);
+						pxNewEventBlock->ulContentSize = ulContentSize;
 					}
 				}
 				else
 				{
 					xStatus = pdFAIL;
-					prvEvent_deleteECB(pxNewEvent);
+					prvEvent_deleteECB(pxNewEventBlock);
 				}
 			}
 		}
@@ -401,7 +405,7 @@ signed portBASE_TYPE xEvent_publish (void* pvPublisher,
 	{
 		portDISABLE_INTERRUPTS();
 		{
-			prvEvent_addEventToList( pxNewEvent );
+			prvEvent_addEventToList( pxNewEventBlock );
 		}
 		portENABLE_INTERRUPTS();
 		portGENERATE_EVENT();
@@ -427,15 +431,18 @@ void vEvent_processEvents (void)
 	while (pxCurrentECB)
 	{
 		/*take the first subscriber from the sub list related to the event*/
-		listGET_OWNER_OF_NEXT_NODE( pxSCB, ( xList* ) pxCurrentECB->pxSubscriberList );
+		listGET_OWNER_OF_NEXT_NODE( pxSCB, ( xList_t* ) pxCurrentECB->pxSubscriberList );
 		while(pxSCB)
 		{
-			if((pxSCB->ulEventKey == pxCurrentECB->ulEventKey)&&( pxSCB->pdEventHandlerFunction))
+			if((pxSCB->xEventHandle == pxCurrentECB->xEventHandle)&&( pxSCB->pvEventHandlerFunction))
 			{
-				pxSCB->pdEventHandlerFunction(pxSCB->ulEventKey,pxSCB->pvHandler,pxCurrentECB->pvPayload,pxCurrentECB->ulPayloadSize); //call event related function
+				pxSCB->pvEventHandlerFunction(pxSCB->xEventHandle,
+											  pxSCB->pvSubscriberHandle,
+											  pxCurrentECB->pvEventContent,
+											  pxCurrentECB->ulContentSize); //call event related function
 			}
 			/*take the next subscriber from the sub list related to the event*/
-			listGET_OWNER_OF_NEXT_NODE( pxSCB, ( xList* ) pxCurrentECB->pxSubscriberList );
+			listGET_OWNER_OF_NEXT_NODE( pxSCB, ( xList_t* ) pxCurrentECB->pxSubscriberList );
 		}
 
 		/*discard event after processed by all subscribers*/
@@ -476,32 +483,31 @@ void vEvent_idleTask( void )
 
 //======================================================================
 
-__PRIVATE_ void prvEvent_getProcessStamp( portTickType*  pulProcessStamp)
+__PRIVATE_ TickType_t prxEvent_getProcessStamp( void )
 {
-	*pulProcessStamp = evt_ulProcessStamp;
+	return evt_ulProcessStamp;
 }
 
 __PRIVATE_ void prvEvent_initializeEventLists( void )
 {
-	unsigned portBASE_TYPE ulPriority;
+	UBaseType_t uxPriority;
 
-	for( ulPriority = 0; ulPriority < EVENT_PRIORITY_LAST; ulPriority++ )
+	for( uxPriority = 0; uxPriority < EVENT_PRIORITY_LAST; uxPriority++ )
 	{
-		vList_initialize( ( xList* ) &( pxEventsLists[ ulPriority ] ) );
+		vList_initialize( ( xList_t* ) &( pxEventsLists[ uxPriority ] ) );
 	}
 }
 
 __PRIVATE_ void prvEvent_initializeEventAdmin( void )
 {
-	unsigned portBASE_TYPE ulEventKey = 0;
+	UBaseType_t ulEventKey = 0;
 
 	for( ulEventKey = 0; ulEventKey < configMAX_NUM_EVENTS; ulEventKey++ )
 	{
 		pxEventAdminList[ulEventKey].pvEventOwner = NULL;
-		pxEventAdminList[ulEventKey].ulEventKey = ulEventKey;
 		pxEventAdminList[ulEventKey].bInUse = pdFALSE;
 
-		vList_initialize( ( xList* ) &( pxEventAdminList[ulEventKey].xSubscriberList ) );
+		vList_initialize( ( xList_t* ) &( pxEventAdminList[ulEventKey].xSubscriberList ) );
 		pxEventAdminList[ulEventKey].ulCurrentNumberOfSubscribers = 0;
 	}
 
@@ -509,45 +515,43 @@ __PRIVATE_ void prvEvent_initializeEventAdmin( void )
 }
 
 __PRIVATE_ void prvEvent_initializeSCBVariables( evtSCB* pxSCB,
-												 pdEVENT_HANDLER_FUNCTION pFunction,
-												 unsigned portBASE_TYPE	ulEventKey,
+												 EventHandlerFunction_t pFunction,
+												 EventHandle_t	xEvent,
 												 void* pvSubscriber)
 {
-	pxSCB->ulEventKey = ulEventKey;
-	pxSCB->pdEventHandlerFunction = pFunction;
-	pxSCB->pvHandler = pvSubscriber;
+	pxSCB->xEventHandle = xEvent;
+	pxSCB->pvEventHandlerFunction = pFunction;
+	pxSCB->pvSubscriberHandle = pvSubscriber;
 
 	vList_initialiseNode( &( pxSCB->xSubscriberListNode ) );
 
 	/* Set the pxSCB as a link back from the xListNode.  This is so we can get
 	back to	the containing SCB from a generic node in a list. */
-	listSET_LIST_NODE_OWNER((xListNode*) &( pxSCB->xSubscriberListNode ), pxSCB );
+	listSET_LIST_NODE_OWNER((xListNode_t*) &( pxSCB->xSubscriberListNode ), pxSCB );
 }
 
 __PRIVATE_ void prvEvent_initializeECBVariables( evtECB* pxECB,
-												 unsigned portBASE_TYPE ulEventKey,
-												 unsigned portBASE_TYPE ulEventPriority)
+												 EventHandle_t xEvent,
+												 UBaseType_t uxEventPriority)
 {
-	unsigned portBASE_TYPE ulProcessStamp = 0;
+	UBaseType_t ulProcessStamp = prxEvent_getProcessStamp();
 
-	prvEvent_getProcessStamp(&ulProcessStamp);
-
-	pxECB->ulEventKey = ulEventKey;
-	pxECB->ulEventPriority = ulEventPriority;
-	pxECB->pvPayload = NULL;
-	pxECB->ulPayloadSize = 0;
+	pxECB->xEventHandle = xEvent;
+	pxECB->uxEventPriority = uxEventPriority;
+	pxECB->pvEventContent = NULL;
+	pxECB->ulContentSize = 0;
 
 	/*Easier to access and run over the subscribers list*/
-	pxECB->pxSubscriberList = (& pxEventAdminList[ulEventKey].xSubscriberList);
+	pxECB->pxSubscriberList = ( ( xList_t* ) &( ( (evtEventAdmin_t*) xEvent )->xSubscriberList) );
 
 	vList_initialiseNode( &( pxECB->xEventListNode ) );
 
 	/* Set the pxECB as a link back from the xListNode.  This is so we can get
 	back to	the containing SCB from a generic node in a list. */
-	listSET_LIST_NODE_OWNER((xListNode*) &( pxECB->xEventListNode ), pxECB );
+	listSET_LIST_NODE_OWNER((xListNode_t*) &( pxECB->xEventListNode ), pxECB );
 
 	/* Event lists are always in priority order. */
-	listSET_LIST_NODE_VALUE( &( pxECB->xEventListNode ), ( portBASE_TYPE ) ulProcessStamp);
+	listSET_LIST_NODE_VALUE( &( pxECB->xEventListNode ), ( TickType_t ) ulProcessStamp);
 
 }
 
@@ -567,26 +571,25 @@ __PRIVATE_ void prvEvent_incrementProcessStamp( void )
 */
 __PRIVATE_ void prvEvent_updateLifeTime (void)
 {
-	portBASE_TYPE ulPriority = EVENT_PRIORITY_HIGH;
+	UBaseType_t uxPriority = EVENT_PRIORITY_HIGH;
 	evtECB* pxECB = NULL;
-	unsigned portBASE_TYPE ulProcessStamp = 0;
 
 	/*update the process stamp*/
 	prvEvent_incrementProcessStamp();
-	/*get the new process stamp value*/
-	prvEvent_getProcessStamp(&ulProcessStamp);
 
-	while(ulPriority < EVENT_PRIORITY_LAST)
+	TickType_t ulProcessStamp = prxEvent_getProcessStamp(); /*get the new process stamp value*/
+
+	while(uxPriority < EVENT_PRIORITY_LAST)
 	{
-		if( listIS_EMPTY((xList*) &( pxEventsLists[ ulPriority ] ) ) )
+		if( listIS_EMPTY((xList_t*) &( pxEventsLists[ uxPriority ] ) ) )
 		{
-			ulPriority++;
+			uxPriority++;
 		}
 		else
 		{
-			pxECB = listGET_OWNER_OF_HEAD_ENTRY((xList*)&( pxEventsLists[ ulPriority ] ) );
+			pxECB = listGET_OWNER_OF_HEAD_ENTRY( (xList_t*) &( pxEventsLists[ uxPriority ] ) );
 
-			if(((portBASE_TYPE)(ulProcessStamp - listGET_LIST_ITEM_VALUE( &( pxECB->xEventListNode )))) >= configEVENTOS_LIFE_TIME)
+			if(((TickType_t)(ulProcessStamp - listGET_LIST_ITEM_VALUE( &( pxECB->xEventListNode )))) >= configEVENTOS_LIFE_TIME)
 			{
 				portDISABLE_INTERRUPTS();
 				{
@@ -603,7 +606,7 @@ __PRIVATE_ void prvEvent_updateLifeTime (void)
 				}
 				portENABLE_INTERRUPTS();
 			}
-			else ulPriority++;
+			else uxPriority++;
 		}
 	}
 }
@@ -619,13 +622,13 @@ __PRIVATE_ void prvEvent_updateLifeTime (void)
 */
 __PRIVATE_ evtECB* prvEvent_getNextEvent(void)
 {
-	portBASE_TYPE xPriority = EVENT_PRIORITY_HIGH;
+	UBaseType_t xPriority = EVENT_PRIORITY_HIGH;
 	evtECB* pxECB = NULL;
 
 	/*check the event list with highest priority that is not empty*/
 	while ((xPriority < EVENT_PRIORITY_LAST) && (pxECB == NULL))
 	{
-		pxECB = (evtECB*) listGET_OWNER_OF_HEAD_ENTRY(( xList* ) &( pxEventsLists[ xPriority ] ) );
+		pxECB = (evtECB*) listGET_OWNER_OF_HEAD_ENTRY(( xList_t* ) &( pxEventsLists[ xPriority ] ) );
 		xPriority++;
 	}
 
@@ -636,18 +639,17 @@ __PRIVATE_ evtECB* prvEvent_getNextEvent(void)
 	EventOS dequeue event. This is the method that dequeue the events in the publish queue.
 
     @param tx_EventNode* pxEventList
+
     @return void
-    @author Amanda/Samuel
-    @date   20/10/2014
 
 */
 __PRIVATE_ void prvEvent_increaseEventPriority(evtECB* pxECB)
 {
 	if(!pxECB) return;
-	pxECB->ulEventPriority--;
-	if(pxECB->ulEventPriority < EVENT_PRIORITY_HIGH)
+	pxECB->uxEventPriority--;
+	if(pxECB->uxEventPriority < EVENT_PRIORITY_HIGH)
 	{
-		pxECB->ulEventPriority = (portBASE_TYPE) EVENT_PRIORITY_HIGH;
+		pxECB->uxEventPriority = (BaseType_t) EVENT_PRIORITY_HIGH;
 	}
 }
 
@@ -666,17 +668,16 @@ __PRIVATE_ void prvEvent_deleteECB( evtECB* pxECB )
 {
 	/* Free up the memory allocated by the scheduler for the task.  It is up to
 	the task to free any memory allocated at the application level. */
-	if(pxECB->pvPayload)
+	if(pxECB->pvEventContent)
 	{
-		vPortFree( pxECB->pvPayload );
+		vPortFree( pxECB->pvEventContent );
 	}
 	vPortFree( pxECB );
 }
 
 
-__PRIVATE_ void prvEvent_generateEventKey(void* pvEventOwner,
-										  portCHAR* szEventName,
-										  unsigned portBASE_TYPE* ulEventKey)
+__PRIVATE_ BaseType_t prxEvent_generateEventKey(void* pvEventOwner,
+										  	     const char* szEventName)
 {
 	unsigned portLONG hash = 5381;
 	portCHAR c;
@@ -688,5 +689,10 @@ __PRIVATE_ void prvEvent_generateEventKey(void* pvEventOwner,
 		szEventName++;
 	}
 
-	*ulEventKey = hash % configMAX_NUM_EVENTS;
+	return (BaseType_t)(hash % configMAX_NUM_EVENTS);
+}
+
+__PRIVATE_ BaseType_t prxEvent_validateEventHandle( EventHandle_t xEvent )
+{
+	return  ( ( (evtEventAdmin_t*) xEvent )->bInUse );
 }

@@ -23,18 +23,18 @@
  */
 struct xLIST_NODE
 {
-	portTickType xNodeValue;					/*< This value is used to sort the list in descending order. */
+	UBaseType_t xNodeValue;					/*< This value is used to sort the list in descending order. */
 
 	volatile struct xLIST_NODE* pxNext;		/*< Pointer to the next xListItem in the list. */
 	volatile struct xLIST_NODE* pxPrevious;	/*< Pointer to the previous xListItem in the list. */
 	void* pvOwner;								/*< Pointer to the object that contains the list item.  There is therefore a two way link between the object containing the list item and the list item itself. */
 	void* pvContainer;							/*< Pointer to the list in which this list item is placed (if any). */
 };
-typedef struct xLIST_NODE xListNode;
+typedef struct xLIST_NODE xListNode_t;
 
 struct xLIST_SENTINEL
 {
-	portTickType xNodeValue;					/*< This value is used to sort the list in descending order. */
+	UBaseType_t xNodeValue;					/*< This value is used to sort the list in descending order. */
 	volatile struct xLIST_NODE* pxNext;		/*< Pointer to the next xListItem in the list. */
 	volatile struct xLIST_NODE* pxPrevious;	/*< Pointer to the previous xListItem in the list. */
 };
@@ -46,9 +46,9 @@ typedef struct xLIST_SENTINEL xSentinelListNode;
 typedef struct xLIST
 {
 	volatile unsigned portBASE_TYPE xNumberOfNodes;
-	volatile xListNode* pxIndex;						/*< Used to walk through the list.  Points to the last item returned by a call to pvListGetOwnerOfNextEntry (). */
+	volatile xListNode_t* pxIndex;						/*< Used to walk through the list.  Points to the last item returned by a call to pvListGetOwnerOfNextEntry (). */
 	volatile xSentinelListNode xListSentinel;
-}xList;
+}xList_t;
 
 /*
  * Access macro to set the owner of a list node.  The owner of a list node
@@ -69,11 +69,11 @@ typedef struct xLIST
  */
 #define listGET_OWNER_OF_NEXT_NODE( pxXCB, pxList )											\
 {																									\
-	xList* const pxConstList = pxList;														\
+	xList_t* const pxConstList = pxList;														\
 	/* Increment the index to the next item and return the item, ensuring */						\
 	/* we don't return the marker used at the end of the list.  */									\
 	( pxConstList )->pxIndex = ( pxConstList )->pxIndex->pxNext;							\
-	if( ( pxConstList )->pxIndex == ( xListNode* ) &( ( pxConstList )->xListSentinel ) )	\
+	if( ( pxConstList )->pxIndex == ( xListNode_t* ) &( ( pxConstList )->xListSentinel ) )	\
 	{																								\
 		pxXCB = NULL;																				\
 	}																								\
@@ -139,10 +139,10 @@ typedef struct xLIST
     @author edielson
     @date   14/09/2017
 */
-void vList_initialize(xList* pxList);
-void vList_initialiseNode( xListNode* pxNode );
-void vList_insertHead( xList* pxList, xListNode* pxNewListNode );
-void vList_insert( xList* pxList, xListNode *pxNewListNode );
-void vList_remove( xListNode* pxNodeToRemove );
+void vList_initialize(xList_t* pxList);
+void vList_initialiseNode( xListNode_t* pxNode );
+void vList_insertHead( xList_t* pxList, xListNode_t* pxNewListNode );
+void vList_insert( xList_t* pxList, xListNode_t *pxNewListNode );
+void vList_remove( xListNode_t* pxNodeToRemove );
 
 #endif /* LIST_H_ */
