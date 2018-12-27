@@ -306,9 +306,10 @@ BaseType_t 		xEvent_subscribe (void* pvEventSubscriber,
 {
 	if (pFunctionCode == NULL) 		return pdFAIL;
 	if (pvEventSubscriber == NULL) 	return pdFAIL;
+	if (xEventToSubscribe == NULL) 	return pdFAIL;
 	if (evt_ulCurrentNumberOfRegEvents == 0) return pdFAIL;
 
-	signed portBASE_TYPE xReturn = pdTRUE;
+	signed portBASE_TYPE xReturn = pdFAIL;
 
 	/*
 	 * Check if the event key is already registered in the system

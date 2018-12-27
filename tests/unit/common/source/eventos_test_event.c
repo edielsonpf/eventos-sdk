@@ -33,6 +33,11 @@
  * @brief Configuration for this test group.
  */
 
+void TestEventHandlerFunction(EventHandle_t pxEventHandle,
+							  void* pvEventHandler,
+							  void* pvBuffer,
+							  uint32_t ulBufferSize);
+
 /*
  * @brief Test group definition.
  */
@@ -63,6 +68,13 @@ TEST_GROUP_RUNNER( Full_EVENTOS_EVENT )
     RUN_TEST_CASE( Full_EVENTOS_EVENT, PublishInvalidOwner );
     RUN_TEST_CASE( Full_EVENTOS_EVENT, PublishInvalidContent );
     RUN_TEST_CASE( Full_EVENTOS_EVENT, PublishValidEvent );
+
+    /* Run subscribe tests. */
+    RUN_TEST_CASE( Full_EVENTOS_EVENT, SubscribeEventBeforeRegister );
+    RUN_TEST_CASE( Full_EVENTOS_EVENT, SubscribeInvalidEvent );
+    RUN_TEST_CASE( Full_EVENTOS_EVENT, SubscribeInvalidFunction );
+    RUN_TEST_CASE( Full_EVENTOS_EVENT, SubscribeInvalidOwner );
+    RUN_TEST_CASE( Full_EVENTOS_EVENT, SubscribeValidEvent );
 }
 
 
@@ -116,14 +128,12 @@ TEST( Full_EVENTOS_EVENT, RegisterEventTwice )
 							  (portCHAR*) szEventName,  			/* Text name for the event. Used to generate event key*/
 							  (EventHandle_t*)&TEST_event_handle);	/* Pointer to store the generated event key */
 
-
 	TEST_ASSERT_EQUAL_UINT32( xResult, pdPASS );
 
 	/* Second register with same valid name should fail. */
 	xResult = xEvent_register(TEST_Handler,
 							  (const char*) szEventName,
 							  (EventHandle_t*)&TEST_event_handle);
-
 
 	TEST_ASSERT_EQUAL_UINT32( xResult, pdFAIL );
 	/* End test. */
@@ -263,7 +273,6 @@ TEST( Full_EVENTOS_EVENT, PublishInvalidContent )
 							  (portCHAR*) szEventName,  			/* Text name for the event. Used to generate event key*/
 							  (EventHandle_t*)&TEST_event_handle);	/* Pointer to store the generated event key */
 
-
 	TEST_ASSERT_EQUAL_UINT32( xResult, pdPASS );
 
     /* Publish with invalid content should fail. */
@@ -273,7 +282,6 @@ TEST( Full_EVENTOS_EVENT, PublishInvalidContent )
 							 NULL,
 							 sizeof(xResult)); /*invalid size, which means that
 							 	 	 	 	 	 there is a valid content*/
-
     TEST_ASSERT_EQUAL_UINT32( xResult, pdFAIL );
     /* End test. */
 }
@@ -292,6 +300,7 @@ TEST( Full_EVENTOS_EVENT, PublishValidEvent )
 							  (portCHAR*) szEventName,  			/* Text name for the event. Used to generate event key*/
 							  (EventHandle_t*)&TEST_event_handle);	/* Pointer to store the generated event key */
 
+	TEST_ASSERT_EQUAL_UINT32( xResult, pdPASS );
 
     /* Publish with valid owner, key, priority and payload should succeed. */
     xResult = xEvent_publish(TEST_Handler,
@@ -302,4 +311,135 @@ TEST( Full_EVENTOS_EVENT, PublishValidEvent )
 
     TEST_ASSERT_EQUAL_UINT32( xResult, pdPASS );
     /* End test. */
+}
+
+TEST( Full_EVENTOS_EVENT, SubscribeEventBeforeRegister )
+{
+    uint32_t xResult = pdFAIL;
+    EventHandle_t TEST_event_handle = NULL;
+	unsigned long TEST_event_id = 0x01;
+	void* TEST_Handler = &TEST_event_id; /*Used to identify the owner of event */
+
+    /* Subscribe before register should fail. */
+    xResult = xEvent_subscribe(TEST_Handler,
+							   TEST_event_handle,
+							   TestEventHandlerFunction);
+
+    TEST_ASSERT_EQUAL_UINT32( xResult, pdFAIL );
+    /* End test. */
+
+}
+
+TEST( Full_EVENTOS_EVENT, SubscribeInvalidEvent )
+{
+    uint8_t szEventName[configMAX_EVENT_NAME_LEN] = "SubscribeInvalidEvent";
+	uint32_t xResult = pdFAIL;
+
+	EventHandle_t TEST_event_handle = NULL;
+	unsigned long TEST_event_id = 0x01;
+	void* TEST_Handler = &TEST_event_id; /*Used to identify the owner of event */
+
+	/* First register with valid name should succeed. */
+	xResult = xEvent_register(TEST_Handler,							/* Handler of event owner. Only event owner can publish a registered event.*/
+							  (portCHAR*) szEventName,  			/* Text name for the event. Used to generate event key*/
+							  (EventHandle_t*)&TEST_event_handle);	/* Pointer to store the generated event key */
+
+	TEST_ASSERT_EQUAL_UINT32( xResult, pdPASS );
+
+	/*invalid event handle*/
+	TEST_event_handle = &xResult;
+
+	/* Publish with invalid event handle should fail. */
+    xResult = xEvent_subscribe(TEST_Handler,
+							   TEST_event_handle,
+							   TestEventHandlerFunction);
+
+    TEST_ASSERT_EQUAL_UINT32( xResult, pdFAIL );
+    /* End test. */
+}
+
+TEST( Full_EVENTOS_EVENT, SubscribeInvalidFunction )
+{
+
+    uint8_t szEventName[configMAX_EVENT_NAME_LEN] = "SubscribeInvalidFunction";
+	uint32_t xResult = pdFAIL;
+
+	EventHandle_t TEST_event_handle = NULL;
+	unsigned long TEST_event_id = 0x01;
+	void* TEST_Handler = &TEST_event_id; /*Used to identify the owner of event */
+
+	/* First register with valid name should succeed. */
+	xResult = xEvent_register(TEST_Handler,							/* Handler of event owner. Only event owner can publish a registered event.*/
+							  (portCHAR*) szEventName,  			/* Text name for the event. Used to generate event key*/
+							  (EventHandle_t*)&TEST_event_handle);	/* Pointer to store the generated event key */
+
+	TEST_ASSERT_EQUAL_UINT32( xResult, pdPASS );
+
+	/* Publish with invalid priority should fail. */
+	xResult = xEvent_subscribe(TEST_Handler,
+							   TEST_event_handle,
+							   NULL);
+
+    TEST_ASSERT_EQUAL_UINT32( xResult, pdFAIL );
+    /* End test. */
+}
+
+TEST( Full_EVENTOS_EVENT, SubscribeInvalidOwner )
+{
+	uint8_t szEventName[configMAX_EVENT_NAME_LEN] = "SubscribeInvalidOwner";
+	uint32_t xResult = pdFAIL;
+
+	EventHandle_t TEST_event_handle = NULL;
+	unsigned long TEST_event_id = 0x01;
+	void* TEST_Handler = &TEST_event_id; /*Used to identify the owner of event */
+
+	/* First register with valid name should succeed. */
+	xResult = xEvent_register(TEST_Handler,							/* Handler of event owner. Only event owner can publish a registered event.*/
+							  (portCHAR*) szEventName,  			/* Text name for the event. Used to generate event key*/
+							  (EventHandle_t*)&TEST_event_handle);	/* Pointer to store the generated event key */
+
+	TEST_ASSERT_EQUAL_UINT32( xResult, pdPASS );
+
+	/* Subscribe with invalid owner should fail. */
+	xResult = xEvent_subscribe(NULL,
+							   TEST_event_handle,
+							   TestEventHandlerFunction);
+
+	TEST_ASSERT_EQUAL_UINT32( xResult, pdFAIL );
+    /* End test. */
+}
+
+TEST( Full_EVENTOS_EVENT, SubscribeValidEvent )
+{
+	uint8_t szEventName[configMAX_EVENT_NAME_LEN] = "SubscribeEventSuccess";
+	uint32_t xResult = pdFAIL;
+
+	EventHandle_t TEST_event_handle = NULL;
+	unsigned long TEST_event_id = 0x01;
+	void* TEST_Handler = &TEST_event_id; /*Used to identify the owner of event */
+
+	/* First register with valid name should succeed. */
+	xResult = xEvent_register(TEST_Handler,							/* Handler of event owner. Only event owner can publish a registered event.*/
+							  (portCHAR*) szEventName,  			/* Text name for the event. Used to generate event key*/
+							  (EventHandle_t*)&TEST_event_handle);	/* Pointer to store the generated event key */
+
+	TEST_ASSERT_EQUAL_UINT32( xResult, pdPASS );
+
+	/* Publish with valid owner, key, priority and payload should succeed. */
+	xResult = xEvent_subscribe(TEST_Handler,
+							   TEST_event_handle,
+							   TestEventHandlerFunction);
+	TEST_ASSERT_EQUAL_UINT32( xResult, pdPASS );
+    /* End test. */
+}
+
+
+
+void TestEventHandlerFunction(EventHandle_t pxEventHandle,
+							  void* pvEventHandler,
+							  void* pvBuffer,
+							  uint32_t ulBufferSize)
+{
+	/*Do nothing*/
+
 }
