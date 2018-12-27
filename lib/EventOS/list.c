@@ -25,14 +25,14 @@
     Operations implementation
 *********************************************************/
 
-void	vList_initialize(xList* pxList)
+void	vList_initialize(xList_t* pxList)
 {
 	if(pxList == NULL) return;
 
 	/* The list structure contains a list item which is used to mark the
 	end of the list, called sentinel.  To initialize the list the list end
 	is inserted as the only list entry. */
-	pxList->pxIndex = ( xListNode* ) &( pxList->xListSentinel);
+	pxList->pxIndex = ( xListNode_t* ) &( pxList->xListSentinel);
 
 	/* The list end value is the highest possible value in the list to
 	ensure it remains at the end of the list. */
@@ -40,31 +40,31 @@ void	vList_initialize(xList* pxList)
 
 	/* The list sentinel next and previous pointers point to itself so we know
 	when the list is empty. */
-	pxList->xListSentinel.pxNext = ( xListNode * ) &( pxList->xListSentinel );
-	pxList->xListSentinel.pxPrevious = ( xListNode * ) &( pxList->xListSentinel );
+	pxList->xListSentinel.pxNext = ( xListNode_t * ) &( pxList->xListSentinel );
+	pxList->xListSentinel.pxPrevious = ( xListNode_t * ) &( pxList->xListSentinel );
 
 	pxList->xNumberOfNodes = 0;
 }
 
-void vList_initialiseNode( xListNode* pxNode )
+void vList_initialiseNode( xListNode_t* pxNode )
 {
 	/* Make sure the list node is not recorded as being on a list. */
 	pxNode->pvContainer = NULL;
 }
 
-void vList_insertHead( xList* pxList, xListNode* pxNewListNode )
+void vList_insertHead( xList_t* pxList, xListNode_t* pxNewListNode )
 {
-	volatile xListNode* pxIndex;
+	volatile xListNode_t* pxIndex;
 
 	/* Insert a new list node into xList, but rather than sort the list,
 	makes the new list node the header node, but the last to be removed. */
 
 	//Points to the sentinel
-	pxIndex = ( xListNode* ) &( pxList->xListSentinel);
+	pxIndex = ( xListNode_t* ) &( pxList->xListSentinel);
 
 	pxNewListNode->pxNext = pxIndex->pxNext;
-	pxIndex->pxNext->pxPrevious = ( volatile xListNode*) pxNewListNode;
-	pxIndex->pxNext = ( volatile xListNode* ) pxNewListNode;
+	pxIndex->pxNext->pxPrevious = ( volatile xListNode_t*) pxNewListNode;
+	pxIndex->pxNext = ( volatile xListNode_t* ) pxNewListNode;
 	pxNewListNode->pxPrevious = pxList->pxIndex;
 
 	/* Remember which list the node is in. */
@@ -74,10 +74,10 @@ void vList_insertHead( xList* pxList, xListNode* pxNewListNode )
 }
 
 /*-----------------------------------------------------------*/
-void vList_insert( xList* pxList, xListNode *pxNewListNode )
+void vList_insert( xList_t* pxList, xListNode_t *pxNewListNode )
 {
-	volatile xListNode* pxIterator;
-	portTickType ulValueOfInsertion;
+	volatile xListNode_t* pxIterator;
+	TickType_t ulValueOfInsertion;
 
 	/* Insert the new list node into the list, sorted in xNodeValue order. */
 	ulValueOfInsertion = pxNewListNode->xNodeValue;
@@ -86,19 +86,19 @@ void vList_insert( xList* pxList, xListNode *pxNewListNode )
 	if( ulValueOfInsertion == portMAX_DELAY )
 	{
 		//point to the list tail, i.e., the last node
-		pxIterator = ( xListNode* ) &( pxList->xListSentinel);
+		pxIterator = ( xListNode_t* ) &( pxList->xListSentinel);
 	}
 	else
 	{
-		for( pxIterator = ( xListNode* ) &( pxList->xListSentinel); pxIterator->pxPrevious->xNodeValue <= ulValueOfInsertion; pxIterator = pxIterator->pxPrevious )
+		for( pxIterator = ( xListNode_t* ) &( pxList->xListSentinel); pxIterator->pxPrevious->xNodeValue <= ulValueOfInsertion; pxIterator = pxIterator->pxPrevious )
 		{
 			/* There is nothing to do here, we are just iterating to the
 			wanted insertion position. */
 		}
 	}
 	pxNewListNode->pxPrevious = pxIterator->pxPrevious;
-	pxIterator->pxPrevious->pxNext = ( volatile xListNode* ) pxNewListNode;
-	pxIterator->pxPrevious = ( volatile xListNode* ) pxNewListNode;
+	pxIterator->pxPrevious->pxNext = ( volatile xListNode_t* ) pxNewListNode;
+	pxIterator->pxPrevious = ( volatile xListNode_t* ) pxNewListNode;
 	pxNewListNode->pxNext = pxIterator;
 
 	/* Remember which list the item is in.  This allows fast removal of the
@@ -109,11 +109,11 @@ void vList_insert( xList* pxList, xListNode *pxNewListNode )
 }
 /*-----------------------------------------------------------*/
 
-void vList_remove( xListNode* pxNodeToRemove )
+void vList_remove( xListNode_t* pxNodeToRemove )
 {
 	/* The list item knows which list it is in.
 	 * Obtain the list from the list item. */
-	xList* pxList = ( xList*) pxNodeToRemove->pvContainer;
+	xList_t* pxList = ( xList_t*) pxNodeToRemove->pvContainer;
 
 	pxNodeToRemove->pxPrevious->pxNext = pxNodeToRemove->pxNext;
 	pxNodeToRemove->pxNext->pxPrevious = pxNodeToRemove->pxPrevious;

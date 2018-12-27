@@ -36,20 +36,24 @@ extern "C" {
 
 /* Type definitions. */
 #define portCHAR		char
-#define portUCHAR		unsigned portCHAR
 #define portINTEGER		short int
-#define portUINTEGER	unsigned portINTEGER
 #define portFLOAT		float
 #define portDOUBLE		double
-#define portUDOUBLE		unsigned portDOUBLE
 #define portLONG		long
-#define portULONG		unsigned portLONG
 #define portSHORT		short
 #define portSTACK_TYPE	unsigned portLONG
 #define portBASE_TYPE	long
 
-typedef unsigned portLONG portTickType;
-#define portMAX_DELAY ( portTickType ) 0xffffffff
+typedef long BaseType_t;
+typedef unsigned long UBaseType_t;
+
+#if( configUSE_16_BIT_TICKS == 1 )
+typedef uint16_t TickType_t;
+#define portMAX_DELAY ( TickType_t ) 0xffff
+#else
+typedef uint32_t TickType_t;
+#define portMAX_DELAY ( TickType_t ) 0xffffffffUL
+#endif
 
 #define pdTRUE		( 1 )
 #define pdFALSE		( 0 )

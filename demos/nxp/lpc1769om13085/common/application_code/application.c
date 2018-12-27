@@ -36,12 +36,12 @@
     private definition.
 *********************************************************/
 
-unsigned long App_ulSystickKey = 0;
-unsigned long App_ulLightKey = 0;
-unsigned long App_ulLedKey = 0;
+EventHandle_t App_SystickEventHandle;
+EventHandle_t App_LightEventHandle;
+EventHandle_t App_LedEventHandle;
 unsigned long App_ID = 0x10;
 unsigned long App_ulTicks = 0; // counter for 1ms Applications
-void* App_pvHandler = NULL;
+void* App_Handler = NULL;
 
 /*********************************************************
     private operations
@@ -54,20 +54,20 @@ static void Application_initSysTick(void);
 
 static void Application_initLight(void);
 
-static void Application_receiveLightEvent(unsigned portBASE_TYPE EventKey,
+static void Application_receiveLightEvent(EventHandle_t EventHandle,
 										  void* pvHandler,
-										  void* pvPayload,
-										  unsigned portBASE_TYPE ulPayloadSize);
+										  void* pvContent,
+										  uint32_t ulContentSize);
 
-static void Application_receiveSystickEvent(unsigned portBASE_TYPE EventKey,
+static void Application_receiveSystickEvent(EventHandle_t EventHandle,
 											void* pvHandler,
-											void* pvPayload,
-											unsigned portBASE_TYPE ulPayloadSize);
+											void* pvContent,
+											uint32_t ulContentSize);
 
-static void Application_receiveLedEvent(unsigned portBASE_TYPE EventKey,
+static void Application_receiveLedEvent(EventHandle_t EventHandle,
 										void* pvHandler,
-										void* pvPayload,
-										unsigned portBASE_TYPE ulPayloadSize);
+										void* pvContent,
+										uint32_t ulContentSize);
 
 /*********************************************************
     public implementations
@@ -76,37 +76,38 @@ static void Application_receiveLedEvent(unsigned portBASE_TYPE EventKey,
 void Application_initialize(void)
 {
 
-	App_pvHandler = &App_ID; /*Used just to identify the owner of the events in this application*/
+	App_Handler = &App_ID; /*Used just to identify the owner of the events in this application*/
 
 	Application_initSysTick();
 	Application_initLight();
 	Application_initLed();
 
 	/*Example in how to register a new event to the system.*/
-	xEvent_register(App_pvHandler,		/* Handler of event owner. Only event owner can publish
+	xEvent_register(App_Handler,		/* Handler of event owner. Only event owner can publish
 										   a registered event.*/
 					"EVENT_SYSTICK",    /* Text name for the event. Used to generate event key*/
-					&App_ulSystickKey); /* Pointer to store the generated event key */
+					&App_SystickEventHandle); /* Pointer to store the generated event key */
 
-	xEvent_subscribe(Application_receiveSystickEvent, /* Pointer to the function that handles the event*/
-				     App_ulSystickKey, 	/* Event key on which you want to subscribe*/
-					 App_pvHandler); 	/* Subscriber handler.*/
+	xEvent_subscribe(App_Handler, 				/* Subscriber handler.*/
+					 App_SystickEventHandle, 	/* Event key on which you want to subscribe*/
+					 Application_receiveSystickEvent); /* Pointer to the function that handles the event*/
 
-	xEvent_register(App_pvHandler,
+
+	xEvent_register(App_Handler,
 					"EVENT_LIGHT_READ",
-					&App_ulLightKey);
+					&App_LightEventHandle);
 
-	xEvent_subscribe(Application_receiveLightEvent,
-					 App_ulLightKey,
-					 App_pvHandler);
+	xEvent_subscribe(App_Handler,
+					 App_LightEventHandle,
+					 Application_receiveLightEvent);
 
-	xEvent_register(App_pvHandler,
+	xEvent_register(App_Handler,
 					"EVENT_LET_TOGLE",
-					&App_ulLedKey);
+					&App_LedEventHandle);
 
-	xEvent_subscribe(Application_receiveLedEvent,
-					 App_ulLedKey,
-					 App_pvHandler);
+	xEvent_subscribe(App_Handler,
+					 App_LedEventHandle,
+					 Application_receiveLedEvent);
 }
 
 /*********************************************************
@@ -152,19 +153,19 @@ static void Application_initLed(void)
 }
 
 
-static void Application_receiveLightEvent(unsigned portBASE_TYPE EventKey,
+static void Application_receiveLightEvent(EventHandle_t EventHandle,
 		  	  	  	  	  	  	  	  	  void* pvHandler,
-										  void* pvPayload,
-										  unsigned portBASE_TYPE ulPayloadSize)
+										  void* pvContent,
+										  uint32_t ulContentSize)
 {
-	if(pvPayload == NULL) return;
-	if(EventKey != App_ulLightKey) return; /*security check*/
+	if(pvContent == NULL) return;
+	if(EventHandle != App_LightEventHandle) return; /*security check*/
 	if(pvHandler == NULL) return;
-	if(pvHandler != App_pvHandler) return;
+	if(pvHandler != App_Handler) return;
 
-	if(ulPayloadSize > 0)
+	if(ulContentSize > 0)
 	{
-		unsigned long ulLight = *(unsigned long*) pvPayload;
+		unsigned long ulLight = *(unsigned long*) pvContent;
 
 		Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES,
 				LOG_SEVERITY_INFORMATIONAL,
@@ -177,19 +178,19 @@ static void Application_receiveLightEvent(unsigned portBASE_TYPE EventKey,
 	}
 }
 
-static void Application_receiveSystickEvent(unsigned portBASE_TYPE EventKey,
+static void Application_receiveSystickEvent(EventHandle_t EventHandle,
 											void* pvHandler,
-											void* pvPayload,
-											unsigned portBASE_TYPE ulPayloadSize)
+											void* pvContent,
+											uint32_t ulContentSize)
 {
-	if(pvPayload == NULL) return;
-	if(EventKey != App_ulSystickKey) return; /*security check*/
+	if(pvContent == NULL) return;
+	if(EventHandle != App_SystickEventHandle) return; /*security check*/
 	if(pvHandler == NULL) return;
-	if(pvHandler != App_pvHandler) return;
+	if(pvHandler != App_Handler) return;
 
-	if(ulPayloadSize > 0)
+	if(ulContentSize > 0)
 	{
-		unsigned long ulTicks = *(unsigned long*) (pvPayload);
+		unsigned long ulTicks = *(unsigned long*) (pvContent);
 		unsigned long ulLight = 0;
 
 		if(ulTicks % 1000 == 0)
@@ -199,8 +200,8 @@ static void Application_receiveSystickEvent(unsigned portBASE_TYPE EventKey,
 					"[app] Ticks %ul. Publishing new event: Led", ulTicks);
 
 			/*Publish the new light value for respective subscribers*/
-			xEvent_publish(App_pvHandler,
-						   App_ulLedKey,
+			xEvent_publish(App_Handler,
+						   App_LedEventHandle,
 						   EVENT_PRIORITY_MEDIUM,
 						   NULL,
 						   0);
@@ -215,8 +216,8 @@ static void Application_receiveSystickEvent(unsigned portBASE_TYPE EventKey,
 			ulLight = light_read();
 
 			/*Publish the new light value for respective subscribers*/
-			xEvent_publish(App_pvHandler,
-						   App_ulLightKey,
+			xEvent_publish(App_Handler,
+						   App_LightEventHandle,
 						   EVENT_PRIORITY_LOW,
 						   &ulLight,
 						   sizeof(unsigned long));
@@ -224,14 +225,14 @@ static void Application_receiveSystickEvent(unsigned portBASE_TYPE EventKey,
 	}
 }
 
-static void Application_receiveLedEvent(unsigned portBASE_TYPE EventKey,
+static void Application_receiveLedEvent(EventHandle_t EventHandle,
 										void* pvHandler, /*not used*/
-										void* pvPayload, /*not used*/
-										unsigned portBASE_TYPE ulPayloadSize /*not used*/)
+										void* pvContent, /*not used*/
+										uint32_t ulContentSize /*not used*/)
 {
-	if(EventKey != App_ulLedKey) return;
+	if(EventHandle != App_LedEventHandle) return;
 	if(pvHandler == NULL) return;
-	if(pvHandler != App_pvHandler) return;
+	if(pvHandler != App_Handler) return;
 
 	Log_print(LOG_FACILITY_USER_LEVEL_MESSAGES,
 			  LOG_SEVERITY_INFORMATIONAL,
@@ -248,8 +249,8 @@ void xPortSysTickHandler(void)
 	/* On every systick interrupt, a new event
 	 * is generated with high priority and with
 	 * the actual tick count*/
-	xEvent_publish( App_pvHandler, 			/*Publisher handler. Indicates the event publisher.*/
-					App_ulSystickKey,		/* Event key to be published.*/
+	xEvent_publish( App_Handler, 			/*Publisher handler. Indicates the event publisher.*/
+					App_SystickEventHandle,		/* Event key to be published.*/
 					EVENT_PRIORITY_HIGH,	/* Event priority. Here will be published with high priority*/
 					&App_ulTicks,			/* Content to be published */
 					sizeof(App_ulTicks));	/* Content size */
