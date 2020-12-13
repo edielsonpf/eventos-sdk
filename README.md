@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/79444364.svg)](https://zenodo.org/badge/latestdoi/79444364)
 [![Build Status](https://travis-ci.com/edielsonpf/eventos-sdk.svg?branch=master)](https://travis-ci.com/edielsonpf/eventos-sdk)
 
 <a href="https://scan.coverity.com/projects/edielsonpf-eventos-sdk">
